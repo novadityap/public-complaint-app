@@ -40,6 +40,10 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'api' => [
+            'driver' => 'jwt',
+            'provider' => 'users',
+        ],
     ],
 
     /*
@@ -111,5 +115,15 @@ return [
     */
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
+
+    'jwt_algo' => env('JWT_ALGO', 'HS256'),
+
+    'jwt_secret' => env('JWT_SECRET'),
+
+    'jwt_expires' => env('JWT_EXPIRES'),
+
+    'jwt_refresh_secret' => env('JWT_REFRESH_SECRET'),
+
+    'jwt_refresh_expires' => env('JWT_REFRESH_EXPIRES'),
 
 ];
