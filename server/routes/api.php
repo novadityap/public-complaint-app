@@ -7,11 +7,11 @@ use App\Http\Controllers\AuthController;
 
 Route::prefix('auth')->controller(AuthController::class)->group(function () {
   Route::post('/signup', 'signup');
-  Route::post('/verify-email', 'verifyEmail');
+  Route::post('/verify-email/{verificationToken}', 'verifyEmail');
   Route::post('/resend-verirification', 'resendVerification');
   Route::post('/signin', 'signin');
   Route::post('/refresh-token', 'refreshToken');
-  Route::post('/reset-password', 'resetPassword');
+  Route::post('/reset-password/{resetToken}', 'resetPassword');
   Route::post('/request-reset-password', 'requestResetPassword');
   Route::post('/signout', 'signout')->middleware('auth:api');
 });
