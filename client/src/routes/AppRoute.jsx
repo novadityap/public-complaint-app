@@ -1,0 +1,56 @@
+import {
+  createBrowserRouter,
+  createRoutesFromElements,
+  RouterProvider,
+  Route,
+} from 'react-router';
+import AppLayout from '@/components/layouts/AppLayout';
+import DashboardLayout from '@/components/layouts/DashboardLayout';
+import Signin from '@/pages/public/Signin';
+import Signup from '@/pages/public/Signup';
+import VerifyEmail from '@/pages/public/VerifyEmail';
+import ResendVerification from '@/pages/public/ResendVerification';
+import ResetPasswordRequest from '@/pages/public/ResetPasswordRequest';
+import ResetPassword from '@/pages/public/ResetPassword';
+import Unauthorized from '@/pages/public/Unauthorized';
+import NotFound from '@/pages/public/NotFound';
+import Home from '@/pages/public/Home';
+import PrivateRoute from '@/routes/PrivateRoute';
+import DashboardEntry from '@/routes/DashboardEntry';
+
+const router = createBrowserRouter(
+  createRoutesFromElements(
+    <Route>
+      <Route element={<AppLayout />}>
+        <Route index element={<Home />} />
+        <Route path="signin" element={<Signin />} />
+        <Route path="signup" element={<Signup />} />
+        <Route path="resend-verification" element={<ResendVerification />} />
+        <Route
+          path="request-reset-password"
+          element={<ResetPasswordRequest />}
+        />
+        <Route path="reset-password/:resetToken" element={<ResetPassword />} />
+        <Route
+          path="verify-email/:verificationToken"
+          element={<VerifyEmail />}
+        />
+      </Route>
+      <Route element={<PrivateRoute requiredRoles={['admin', 'user']} />}>
+        <Route path="dashboard" element={<DashboardLayout />}>
+          <Route index element={<DashboardEntry />} />
+          <Route
+            element={<PrivateRoute requiredRoles={['user', 'admin']} />}
+          ></Route>
+          <Route element={<PrivateRoute requiredRoles={['admin']} />}></Route>
+        </Route>
+      </Route>
+      <Route path="unauthorized" element={<Unauthorized />} />
+      <Route path="*" element={<NotFound />} />
+    </Route>
+  )
+);
+
+const AppRoute = () => <RouterProvider router={router} />;
+
+export default AppRoute;
