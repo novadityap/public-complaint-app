@@ -60,7 +60,7 @@ const Header = ({ onToggleSidebar }) => {
 const Footer = () => (
   <footer className="border-t-2 py-6 flex items-center justify-center bg-gray-100 ">
     <p className="text-center text-sm text-body">
-      &copy; {new Date().getFullYear()} Adit&apos;s Estate. All rights reserved.
+      &copy; {new Date().getFullYear()} Public Complaint. All rights reserved.
     </p>
   </footer>
 );
