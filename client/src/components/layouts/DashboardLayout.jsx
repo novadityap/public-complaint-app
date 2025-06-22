@@ -9,7 +9,7 @@ import {
   TbUsersGroup,
   TbUserCog,
   TbUserEdit,
-  TbBuildingEstate,
+  TbMailExclamation,
 } from 'react-icons/tb';
 import { cn } from '@/lib/utils';
 import Brand from '@/components/ui/Brand';
@@ -36,9 +36,9 @@ const Sidebar = ({ isOpen, currentUser, ref }) => {
           { name: 'Dashboard', icon: TbApps, link: '/dashboard' },
           { name: 'Users', icon: TbUsersGroup, link: '/dashboard/users' },
           {
-            name: 'Properties',
-            icon: TbBuildingEstate,
-            link: '/dashboard/properties',
+            name: 'Complaints',
+            icon: TbMailExclamation,
+            link: '/dashboard/complaints',
           },
           { name: 'Roles', icon: TbUserCog, link: '/dashboard/roles' },
         ]
