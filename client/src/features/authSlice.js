@@ -11,8 +11,13 @@ const authSlice = createSlice({
       state.token = action.payload;
     },
     setCurrentUser: (state, action) => {
-      const { token, ...user } = action.payload;
-      state.currentUser = user;
+      state.currentUser = {
+        'avatar': action.payload.avatar,
+        'id': action.payload.id,
+        'username': action.payload.username,
+        'email': action.payload.email,
+        'role': action.payload.role.name
+      };
     },
     updateCurrentUser: (state, action) => {
       state.currentUser = {
