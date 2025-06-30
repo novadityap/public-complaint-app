@@ -4,11 +4,11 @@ use Illuminate\Http\Request;
 use App\Http\Middleware\Authorize;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Application;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -20,18 +20,32 @@ return Application::configure(basePath: dirname(__DIR__))
     health: '/up',
   )
   ->withMiddleware(function (Middleware $middleware) {
-    $middleware->append(Authorize::class);
+    $middleware->alias([
+      'authorize' => Authorize::class,
+    ]);
   })
   ->withExceptions(function (Exceptions $exceptions) {
     $exceptions->report(function (Throwable $e) {
-      if (config('app.debug')) {
-        Log::error($e->getMessage(), [
-          'exception' => get_class($e),
-          'code' => $e->getCode(),
-          'trace' => $e->getTraceAsString(),
-        ]);
-      } else {
+      $metadata = [
+        'exception' => get_class($e),
+        'code' => $e->getCode(),
+      ];
+
+      if ($e->getCode() < 500) {
         Log::warning($e->getMessage());
+      } elseif ($e->getCode() >= 500) {
+        if (config('app.debug'))
+          $metadata['trace'] = $e->getTraceAsString();
+        Log::error($e->getMessage(), $metadata);
+      }
+    });
+
+    $exceptions->render(function (AuthenticationException $e, Request $request) {
+      if ($request->is('api/*')) {
+        return response()->json([
+          'code' => 401,
+          'message' => Auth::guard()->getErrorMessage(),
+        ], 401);
       }
     });
 
@@ -46,8 +60,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
     $exceptions->render(function (ModelNotFoundException $e, Request $request) {
       if ($request->is('api/*')) {
-        $model = class_basename($e->getModel()); 
-  
+        $model = class_basename($e->getModel());
+
         return response()->json([
           'code' => 404,
           'message' => "$model not found",
@@ -57,19 +71,31 @@ return Application::configure(basePath: dirname(__DIR__))
 
     $exceptions->render(function (ValidationException $e, Request $request) {
       if ($request->is('api/*')) {
+        $rawErrors = collect($e->errors());
+
+            $flattened = collect();
+
+            foreach ($rawErrors as $key => $messages) {
+                if (Str::contains($key, '.')) {
+                    $base = Str::camel(Str::before($key, '.'));
+                    $flattened[$base] = array_merge($flattened[$base] ?? [], $messages);
+                } else {
+                    $flattened[Str::camel($key)] = $messages;
+                }
+            }
+
+            $flattened = $flattened->map(fn($messages) => array_values(array_unique($messages)));
+
+
         return response()->json([
           'code' => 400,
           'message' => 'Validation errors',
-          'errors' => $e->errors(),
+          'errors' => $flattened,
         ], 400);
       }
     });
 
-    $exceptions->render(function (HttpResponseException $e, Request $request) {
-  return $e->getResponse(); 
-});
-
-    $exceptions->render(function (HttpException $e) {
+    $exceptions->render(function (HttpException $e, Request $request) {
       return response()->json([
         'code' => $e->getStatusCode(),
         'message' => $e->getMessage(),
@@ -78,16 +104,20 @@ return Application::configure(basePath: dirname(__DIR__))
 
     $exceptions->render(function (Throwable $e, Request $request) {
       if ($request->is('api/*')) {
-        $statusCode = $e instanceof HttpException ? $e->getStatusCode() : 500;
+        $statusCode = $e instanceof HttpException
+          ? $e->getStatusCode()
+          : 500;
         $isServerError = $statusCode >= 500;
-
-        return response()->json([
+        $response = [
           'code' => $statusCode,
-          'message' => config('app.debug') && $isServerError
+          'message' => config('app.debug') || !$isServerError
             ? $e->getMessage()
-            : ($isServerError ? 'Internal server error' : $e->getMessage()),
-          'trace' => config('app.debug') && $isServerError ? $e->getTrace() : null,
-        ], $statusCode);
+            : 'Internal server error'
+        ];
+
+        if (config('app.debug') && $isServerError)
+          $response['trace'] = $e->getTrace();
+        return response()->json($response, $statusCode);
       }
     });
   })->create();
