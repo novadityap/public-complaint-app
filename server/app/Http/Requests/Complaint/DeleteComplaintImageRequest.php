@@ -22,7 +22,7 @@ class DeleteComplaintImageRequest extends FormRequest
     public function rules(): array
     {
         return [
-          'image' => 'required|string|url',
+          'image' => 'required|string',
         ];
     }
 }

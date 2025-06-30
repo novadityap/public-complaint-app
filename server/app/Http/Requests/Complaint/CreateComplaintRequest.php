@@ -6,28 +6,45 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class CreateComplaintRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
-    {
-        return false;
-    }
+  /**
+   * Determine if the user is authorized to make this request.
+   */
+  public function authorize(): bool
+  {
+    return true;
+  }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
-    public function rules(): array
-    {
-        return [
-          'title' => 'required|string',
-          'content' => 'required|string',
-          'status' => 'required|in:pending,in_progress,resolved',
-          'category_id' => 'required|uuid|exists:categories',
-          'images' => 'sometimes|array|max:5',
-          'images.*' => 'file|image|mimes:jpeg,png,jpg|max:2048',
-         ];
-    }
+  protected function prepareForValidation(): void
+  {
+    $this->merge([
+      'category_id' => $this->input('categoryId')
+    ]);
+  }
+
+  /**
+   * Get the validation rules that apply to the request.
+   *
+   * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+   */
+  public function rules(): array
+  {
+    return [
+      'title' => 'required|string',
+      'description' => 'required|string',
+      'category_id' => 'required|uuid|exists:categories,id',
+      'images' => 'sometimes|array|max:5',
+      'images.*' => 'image|mimes:jpeg,png,jpg|max:2048',
+    ];
+  }
+
+  public function messages(): array
+  {
+    return [
+      'images.*.image' => 'The file must be an image.',
+      'images.*.mimes' => 'The image must be in jpg, jpeg, or png format.',
+      'images.*.max' => 'The image field must not be greater than 2048 kilobytes..',
+      'images.required' => 'You must upload at least one image.',
+      'images.array' => 'The image field must be an array of files.',
+    ];
+  }
 }

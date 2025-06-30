@@ -5,15 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\Complaint;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\Helpers\CloudinaryHelper;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Gate;
+use App\Http\Resources\ComplaintResource;
 use Illuminate\Validation\ValidationException;
-use App\Http\Requests\Complaint\ComplaintImageRequest;
 use App\Http\Requests\Complaint\CreateComplaintRequest;
 use App\Http\Requests\Complaint\SearchComplaintRequest;
 use App\Http\Requests\Complaint\UpdateComplaintRequest;
-use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use App\Http\Requests\Complaint\DeleteComplaintImageRequest;
 use App\Http\Requests\Complaint\UploadComplaintImageRequest;
 
@@ -35,14 +35,14 @@ class ComplaintController extends Controller
       })
       ->when($q, function ($query) use ($q) {
         $query->where(function ($subQuery) use ($q) {
-          $subQuery->where('title', 'like', "%{$q}%")
-            ->orWhere('content', 'like', "%{$q}%")
-            ->orWhere('status', 'like', "%{$q}%")
+          $subQuery->where('title', 'ilike', "%{$q}%")
+            ->orWhere('content', 'ilike', "%{$q}%")
+            ->orWhere('status', 'ilike', "%{$q}%")
             ->orWhereHas('user', function ($userQuery) use ($q) {
-              $userQuery->where('email', 'like', "%{$q}%");
+              $userQuery->where('email', 'ilike', "%{$q}%");
             })
             ->orWhereHas('category', function ($categoryQuery) use ($q) {
-              $categoryQuery->where('name', 'like', "%{$q}%");
+              $categoryQuery->where('name', 'ilike', "%{$q}%");
             });
         });
       })
@@ -69,7 +69,7 @@ class ComplaintController extends Controller
     return response()->json([
       'code' => 200,
       'message' => 'Complaints retrieved successfully',
-      'data' => $complaints,
+      'data' => ComplaintResource::collection($complaints->items()),
       'meta' => [
         'pageSize' => $limit,
         'totalItems' => $complaints->total(),
@@ -79,26 +79,22 @@ class ComplaintController extends Controller
     ], 200);
   }
 
-  public function create(CreateComplaintRequest $request): Response
+  public function create(CreateComplaintRequest $request): JsonResponse
   {
     $fields = $request->validated();
     $imageUrls = [];
 
     if ($request->hasFile('images')) {
       foreach ($request->file('images') as $image) {
-        $uploadedFile = $request->file('images')->storeOnCloudinary('complaints');
-        $imageUrls[] = $uploadedFile->getSecurePath();
+        $uploadedFile = cloudinary()->uploadApi()->upload($image->getRealPath(), ['folder' => 'complaints']);
+        $imageUrls[] = $uploadedFile['secure_url'];
       }
     }
 
-    Complaint::create([
-      'user_id' => auth()->id(),
-      'category_id' => $fields['category_id'],
-      'title' => $fields['title'],
-      'content' => $fields['content'],
-      'status' => $fields['status'],
-      'images' => $imageUrls,
-    ]);
+    $fields['user_id'] = auth()->id();
+    $fields['images'] = $imageUrls;
+
+    Complaint::create($fields);
 
     Log::info('Complaint created successfully');
     return response()->json([
@@ -117,14 +113,14 @@ class ComplaintController extends Controller
     return response()->json([
       'code' => 200,
       'message' => 'Complaint retrieved successfully',
-      'data' => $complaint
+      'data' => new ComplaintResource($complaint)
     ], 200);
   }
 
   public function update(UpdateComplaintRequest $request, Complaint $complaint): JsonResponse
   {
     Gate::authorize('update', $complaint);
-
+    
     $fields = $request->validated();
     $newImageUrls = [];
 
@@ -138,8 +134,8 @@ class ComplaintController extends Controller
 
     if ($newImages) {
       foreach ($newImages as $image) {
-        $uploadedFile = $image->storeOnCloudinary('complaints');
-        $newImageUrls[] = $uploadedFile->getSecurePath();
+        $uploadedFile = cloudinary()->uploadApi()->upload($image->getRealPath(), ['folder' => 'complaints']);
+        $newImageUrls[] = $uploadedFile['secure_url'];
       }
     }
 
@@ -148,11 +144,12 @@ class ComplaintController extends Controller
     });
 
     foreach ($imagesToDelete as $image) {
-      $publicId = Cloudinary::extractPublicId($image);
-      Cloudinary::destroy($publicId);
+      cloudinary()->uploadApi()->destroy(CloudinaryHelper::extractPublicId($image));
     }
+    Log::info('Complaint image deleted successfully');
 
-    $fields['images'] = $newImageUrls;
+    if (!empty($newImageUrls)) $fields['images'] = $newImageUrls;
+
     $complaint->update($fields);
     $complaint->load(['category', 'user']);
 
@@ -160,7 +157,7 @@ class ComplaintController extends Controller
     return response()->json([
       'code' => 200,
       'message' => 'Complaint updated successfully',
-      'data' => $complaint
+      'data' => new ComplaintResource($complaint)
     ], 200);
   }
 
@@ -169,9 +166,9 @@ class ComplaintController extends Controller
     Gate::authorize('delete', $complaint);
 
     foreach ($complaint->images as $image) {
-      $publicId = Cloudinary::extractPublicId($image);
-      Cloudinary::destroy($publicId);
+      cloudinary()->uploadApi()->destroy(CloudinaryHelper::extractPublicId($image));
     }
+    Log::info('Complaint image deleted successfully');
 
     $complaint->delete();
 
@@ -196,8 +193,8 @@ class ComplaintController extends Controller
 
     if ($newImages) {
       foreach ($newImages as $image) {
-        $uploadedFile = $image->storeOnCloudinary('complaints');
-        $newImageUrls[] = $uploadedFile->getSecurePath();
+        $uploadedFile = cloudinary()->uploadApi()->upload($image->getRealPath(), ['folder' => 'complaints']);
+        $newImageUrls[] = $uploadedFile['secure_url'];
       }
     }
 
@@ -209,7 +206,7 @@ class ComplaintController extends Controller
     return response()->json([
       'code' => 200,
       'message' => 'Complaint image uploaded successfully',
-      'data' => $complaint
+      'data' => new ComplaintResource($complaint)
     ], 200);
   }
 
@@ -220,8 +217,8 @@ class ComplaintController extends Controller
     if (!in_array($fields['image'], $complaint->images))
       abort(404, 'Complaint image not found');
 
-    $publicId = Cloudinary::extractPublicId($fields['image']);
-    Cloudinary::destroy($publicId);
+    cloudinary()->uploadApi()->destroy(CloudinaryHelper::extractPublicId($fields['image']));
+    Log::info('Complaint image deleted successfully');
 
     $newImages = array_filter($complaint->images, fn($image) => $image !== $fields['image']);
     $complaint->update(['images' => $newImages]);
