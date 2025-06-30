@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserResource;
 use Carbon\Carbon;
 use App\Models\Role;
 use App\Models\User;
@@ -106,7 +107,7 @@ class AuthController extends Controller
       ->where('is_verified', true)
       ->first();
 
-    if (!$user || !Hash::check($fields['password'], $user->password)) {
+    if (!$user || !is_string($user->password) || !Hash::check($fields['password'], $user->password)) {
       abort(401, 'Email or password is invalid');
     }
 
@@ -142,19 +143,14 @@ class AuthController extends Controller
       'expires_at' => Carbon::createFromTimestamp($decodedRefreshToken->exp)
     ]);
 
+    $user->token = $token;
+
     Log::info('Signed in successfully');
     return response()
       ->json([
         'code' => 200,
         'message' => 'Signed in successfully',
-        'data' => [
-          'token' => $token,
-          'id' => $user->id,
-          'role' => $user->role->name,
-          'email' => $user->email,
-          'username' => $user->username,
-          'avatar' => $user->avatar
-        ]
+        'data' => new UserResource($user),
       ], 200)
       ->cookie(
         'refreshToken',
