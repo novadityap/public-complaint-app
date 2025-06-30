@@ -22,7 +22,8 @@ class UpdateResponseRequest extends FormRequest
   public function rules(): array
   {
     return [
-      'message' => 'sometimes|required|string'
+      'message' => 'sometimes|required|string',
+      'status' => 'required|in:pending,in_progress,resolved',
     ];
   }
 }

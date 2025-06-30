@@ -22,7 +22,8 @@ class CreateResponseRequest extends FormRequest
   public function rules(): array
   {
     return [
-      'message' => 'required|string'
+      'message' => 'required|string',
+      'status' => 'required|in:pending,in_progress,resolved',
     ];
   }
 }
