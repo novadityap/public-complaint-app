@@ -16,9 +16,9 @@ class Authorize
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-      // if (!in_array(auth()->user()->role->name, $roles)) {
-      //   throw new AuthorizationException('Permission denied');
-      // }
+      if (!in_array(auth()->user()->role->name, $roles)) {
+        throw new AuthorizationException('Permission denied');
+      }
 
       return $next($request);
     }
