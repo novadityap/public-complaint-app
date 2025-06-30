@@ -1,9 +1,12 @@
 <?php
 
-use App\Http\Controllers\ComplaintController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\ResponseController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ComplaintController;
 
 Route::prefix('auth')->controller(AuthController::class)->group(function () {
   Route::post('/signup', 'signup');
@@ -18,31 +21,64 @@ Route::prefix('auth')->controller(AuthController::class)->group(function () {
 
 Route::prefix('users')->middleware('auth:api')->controller(UserController::class)->group(function () {
   Route::middleware('authorize:admin')->group(function () {
-    Route::post('/', 'create');
     Route::get('/search', 'search');
+    Route::post('/', 'create');
     Route::patch('/{user}', 'update');
     Route::delete('/{user}', 'delete');
   });
+
   Route::middleware('authorize:user,admin')->group(function () {
     Route::get('/{user}', 'show');
     Route::patch('/{user}/profile', 'profile');
   });
 });
 
-Route::prefix('complaints')->middleware('auth:api')->controller(ComplaintController::class)->group(function () {
+Route::prefix('roles')->middleware('auth:api')->controller(RoleController::class)->group(function () {
   Route::middleware('authorize:admin')->group(function () {
-    Route::post('/{complaint}/responses', 'create');
-    Route::patch('/{complaint}/responses', 'update');
-    Route::delete('/uri: {complaint}/responses', 'delete');
-  });
-  Route::middleware('authorize:user,admin')->group(function () {
-    Route::post('/', 'create');
-    Route::get('/{complaint}', 'show');
-    Route::patch('/{complaint}', 'update');
-    Route::delete('/{complaint}', 'delete');
-    Route::post('/{complaint}/images', 'uploadImage');
-    Route::delete('/{complaint}/images', 'deleteImage');
     Route::get('/search', 'search');
+    Route::get('/', 'list');
+    Route::post('/', 'create');
+    Route::get('/{role}', 'show');
+    Route::patch('/{role}', 'update');
+    Route::delete('/{role}', 'delete');
+  });
+});
+
+Route::prefix('categories')->middleware('auth:api')->controller(CategoryController::class)->group(function () {
+  Route::middleware('authorize:user,admin')->group(function () {
+    Route::get('/', 'list');
+  });
+
+  Route::middleware('authorize:admin')->group(function () {
+    Route::get('/search', 'search');
+    Route::post('/', 'create');
+    Route::get('/{category}', 'show');
+    Route::patch('/{category}', 'update');
+    Route::delete('/{category}', 'delete');
+  });
+});
+
+Route::prefix('complaints')->middleware('auth:api')->group(function () {
+  Route::controller(ComplaintController::class)->group(function () {
+    Route::middleware('authorize:user')->group(function () {
+      Route::post('/', 'create');
+      Route::patch('/{complaint}', 'update');
+    });
+
+    Route::middleware('authorize:user,admin')->group(function () {
+      Route::get('/search', 'search');
+      Route::get('/{complaint}', 'show');
+      Route::delete('/{complaint}', 'delete');
+      Route::post('/{complaint}/images', 'uploadImage');
+      Route::delete('/{complaint}/images', 'deleteImage');
+    });
+  });
+
+  Route::middleware('authorize:admin')->controller(ResponseController::class)->group(function () {
+    Route::get('/{complaint}/responses', 'list');
+    Route::post('/{complaint}/responses', 'create');
+    Route::patch('/{complaint}/responses/{response}', 'update');
+    Route::delete('/{complaint}/responses/{response}', 'delete');
   });
 });
 
