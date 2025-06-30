@@ -13,6 +13,11 @@ import { combineReducers } from 'redux';
 import storage from 'redux-persist/lib/storage';
 import authReducer from '@/features/authSlice.js';
 import authApi from '@/services/authApi.js';
+import roleApi from '@/services/roleApi.js';
+import userApi from '@/services/userApi.js';
+import categoryApi from '@/services/categoryApi.js';
+import complaintApi from '@/services/complaintApi.js';
+import dashboardApi from '@/services/dashboardApi.js';
 
 const rootPersistConfig = {
   key: 'root',
@@ -27,7 +32,12 @@ const authPersistConfig = {
 
 const rootReducer = combineReducers({
   [authApi.reducerPath]: authApi.reducer,
-  auth: persistReducer(authPersistConfig, authReducer)
+  [roleApi.reducerPath]: roleApi.reducer,
+  [userApi.reducerPath]: userApi.reducer,
+  [categoryApi.reducerPath]: categoryApi.reducer,
+  [complaintApi.reducerPath]: complaintApi.reducer,
+  [dashboardApi.reducerPath]: dashboardApi.reducer,
+  auth: persistReducer(authPersistConfig, authReducer),
 });
 
 export const store = configureStore({
@@ -38,6 +48,11 @@ export const store = configureStore({
     }
   }).concat(
     authApi.middleware, 
+    roleApi.middleware,
+    userApi.middleware,
+    categoryApi.middleware,
+    complaintApi.middleware,
+    dashboardApi.middleware
   ),
 });
 
