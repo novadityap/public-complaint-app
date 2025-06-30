@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignUuid('user_id')->constrained()->onDelete('cascade');
             $table->foreignUuid('category_id')->constrained()->onDelete('set null')->nullable();
             $table->string('title');
-            $table->text('content');
+            $table->text('description');
             $table->enum('status', ['pending', 'in_progress', 'resolved'])->default('pending');
             $table->json('images')->nullable();
             $table->timestamps();
