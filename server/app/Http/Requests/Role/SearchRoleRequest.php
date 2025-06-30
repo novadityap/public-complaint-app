@@ -24,7 +24,7 @@ class SearchRoleRequest extends FormRequest
     return [
       'page' => 'sometimes|integer|min:1',
       'limit' => 'sometimes|integer|min:1|max:100',
-      'q' => 'sometimes|string',
+      'q' => 'nullable|string',
     ];
   }
 }

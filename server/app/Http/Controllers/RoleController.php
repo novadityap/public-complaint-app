@@ -4,10 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Role\CreateRoleRequest;
 use App\Http\Requests\Role\UpdateRoleRequest;
+use App\Http\Resources\RoleResource;
 use App\Models\Role;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\Role\SearchRoleRequest;
 
@@ -22,7 +21,7 @@ class RoleController extends Controller
 
     $query = Role::query()
       ->when($q, function ($query) use ($q) {
-        $query->where('name', 'like', "%{$q}%");
+        $query->where('name', 'ilike', "%{$q}%");
       })
       ->orderBy('created_at', 'desc');
 
@@ -47,7 +46,7 @@ class RoleController extends Controller
     return response()->json([
       'code' => 200,
       'message' => 'Roles retrieved successfully',
-      'data' => $roles->items(),
+      'data' => RoleResource::collection($roles->items()),
       'meta' => [
         'pageSize' => $limit,
         'totalItems' => $roles->total(),
@@ -85,7 +84,7 @@ class RoleController extends Controller
     return response()->json([
       'code' => 200,
       'message' => 'Roles retrieved successfully',
-      'data' => $roles
+      'data' => RoleResource::collection($roles)
     ], 200);
   }
 
@@ -95,7 +94,7 @@ class RoleController extends Controller
     return response()->json([
       'code' => 200,
       'message' => 'Role retrieved successfully',
-      'data' => $role
+      'data' => new RoleResource($role)
     ], 200);
   }
 
@@ -108,11 +107,11 @@ class RoleController extends Controller
     return response()->json([
       'code' => 200,
       'message' => 'Role updated successfully',
-      'data' => $role
+      'data' => new RoleResource($role)
     ], 200);
   }
 
-  public function delete(Role $role): Response
+  public function delete(Role $role): JsonResponse
   {
     $role->delete();
 
