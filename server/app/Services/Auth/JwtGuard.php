@@ -18,7 +18,6 @@ class JwtGuard implements Guard
   protected $request;
   protected $secret;
   protected $algorithm;
- 
 
   public function __construct(UserProvider $provider, Request $request) {
     $this->provider = $provider;
@@ -78,5 +77,9 @@ class JwtGuard implements Guard
     } catch (\Throwable $e) {
       return false;
     }
+  }
+
+  public function getErrorMessage() {
+    return $this->message;
   }
 }
