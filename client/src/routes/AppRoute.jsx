@@ -17,6 +17,11 @@ import NotFound from '@/pages/public/NotFound';
 import Home from '@/pages/public/Home';
 import PrivateRoute from '@/routes/PrivateRoute';
 import DashboardEntry from '@/routes/DashboardEntry';
+import Profile from '@/pages/private/Profile';
+import User from '@/pages/private/User';
+import Role from '@/pages/private/Role';
+import Category from '@/pages/private/Category';
+import Complaint from '@/pages/private/Complaint';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -39,10 +44,15 @@ const router = createBrowserRouter(
       <Route element={<PrivateRoute requiredRoles={['admin', 'user']} />}>
         <Route path="dashboard" element={<DashboardLayout />}>
           <Route index element={<DashboardEntry />} />
-          <Route
-            element={<PrivateRoute requiredRoles={['user', 'admin']} />}
-          ></Route>
-          <Route element={<PrivateRoute requiredRoles={['admin']} />}></Route>
+          <Route element={<PrivateRoute requiredRoles={['user', 'admin']} />}>
+            <Route path="complaints" element={<Complaint />} />
+            <Route path="profile" element={<Profile />} />
+          </Route>
+          <Route element={<PrivateRoute requiredRoles={['admin']} />}>
+            <Route path="users" element={<User />} />
+            <Route path="roles" element={<Role />} />
+            <Route path="categories" element={<Category />} />
+          </Route>
         </Route>
       </Route>
       <Route path="unauthorized" element={<Unauthorized />} />
