@@ -14,6 +14,12 @@ class CreateUserRequest extends FormRequest
         return true;
     }
 
+     protected function prepareForValidation(): void {
+      $this->merge([
+        'role_id' => $this->input('roleId')
+      ]);
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -25,7 +31,7 @@ class CreateUserRequest extends FormRequest
           'username' => 'required|string|unique:users',
           'email'=> 'required|email|unique:users',
           'password'=> 'required|string|min:6',
-          'role_id' => 'required|uuid|exists:roles'
+          'role_id' => 'required|uuid|exists:roles,id'
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\User;
 
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ProfileRequest extends FormRequest
@@ -23,8 +24,18 @@ class ProfileRequest extends FormRequest
     {
         return [
           'avatar' => 'sometimes|image|mimes:jpeg,png,jpg|max:2048',
-          'username' => 'sometimes|string|unique:users',
-          'email'=> 'sometimes|email|unique:users',
+          'username' => [
+            'sometimes', 
+            'required',
+            'string',
+            Rule::unique('users')->ignore($this->route('user')->id)
+          ],
+          'email'=> [
+            'sometimes',
+            'required',
+            'email',
+            Rule::unique('users')->ignore($this->route('user')->id)
+          ],
           'password'=> 'sometimes|string|min:6',
         ];
     }

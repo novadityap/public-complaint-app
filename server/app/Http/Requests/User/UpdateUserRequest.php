@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\User;
 
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateUserRequest extends FormRequest
@@ -14,6 +15,14 @@ class UpdateUserRequest extends FormRequest
         return true;
     }
 
+     protected function prepareForValidation(): void {
+      if ($this->has('roleId')) {
+        $this->merge([
+        'role_id' => $this->input('roleId')
+      ]);
+      }
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -22,11 +31,21 @@ class UpdateUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-          'avatar' => 'sometimes|required|file|image|mimes:jpeg,png,jpg|max:2048',
-          'username' => 'sometimes|required|string|unique:users',
-          'email'=> 'sometimes|required|email|unique:users',
-          'password'=> 'sometimes|required|string|min:6',
-          'role_id' => 'sometimes|required|uuid|exists:roles'
+          'avatar' => 'sometimes|image|mimes:jpeg,png,jpg|max:2048',
+          'username' => [
+            'sometimes', 
+            'required',
+            'string',
+            Rule::unique('users')->ignore($this->route('user')->id)
+          ],
+          'email'=> [
+            'sometimes',
+            'required',
+            'email',
+            Rule::unique('users')->ignore($this->route('user')->id)
+          ],
+          'password'=> ['sometimes', 'string', 'min:6',],
+          'role_id' => 'sometimes|uuid|exists:roles,id'
         ];
     }
 }
