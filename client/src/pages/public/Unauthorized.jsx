@@ -23,7 +23,7 @@ const Unauthorized = () => {
           </p>
         </CardContent>
         <CardFooter className="flex justify-center pt-4">
-          <Button onClick={handleGoHome}>
+          <Button className="cursor-pointer" onClick={handleGoHome}>
             Go to Homepage
           </Button>
         </CardFooter>
