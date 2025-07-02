@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ResponseController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -17,6 +18,12 @@ Route::prefix('auth')->controller(AuthController::class)->group(function () {
   Route::post('/reset-password/{resetToken}', 'resetPassword');
   Route::post('/request-reset-password', 'requestResetPassword');
   Route::post('/signout', 'signout')->middleware('auth:api');
+});
+
+Route::prefix('dashboard')->middleware('auth:api')->controller(DashboardController::class)->group(function () {
+  Route::middleware('authorize:admin')->group(function () {
+    Route::get('/', 'stats');
+  });
 });
 
 Route::prefix('users')->middleware('auth:api')->controller(UserController::class)->group(function () {
@@ -74,11 +81,17 @@ Route::prefix('complaints')->middleware('auth:api')->group(function () {
     });
   });
 
-  Route::middleware('authorize:admin')->controller(ResponseController::class)->group(function () {
-    Route::get('/{complaint}/responses', 'list');
-    Route::post('/{complaint}/responses', 'create');
-    Route::patch('/{complaint}/responses/{response}', 'update');
-    Route::delete('/{complaint}/responses/{response}', 'delete');
+  Route::controller(ResponseController::class)->group(function () {
+    Route::middleware('authorize:admin')->group(function () {
+      Route::post('/{complaint}/responses', 'create');
+      Route::patch('/{complaint}/responses/{response}', 'update');
+      Route::delete('/{complaint}/responses/{response}', 'delete');
+    });
+
+    Route::middleware('authorize:user,admin')->group(function () {
+      Route::get('/{complaint}/responses', 'list');
+      Route::get('/{complaint}/responses/{response}', 'show');
+    });
   });
 });
 
