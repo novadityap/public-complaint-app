@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\ResponseResource;
 use App\Models\Response;
 use App\Models\Complaint;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Gate;
+use App\Http\Resources\ResponseResource;
 use App\Http\Requests\Response\CreateResponseRequest;
 use App\Http\Requests\Response\UpdateResponseRequest;
 
@@ -14,6 +15,8 @@ class ResponseController extends Controller
 {
   public function list(Complaint $complaint): JsonResponse
   {
+    Gate::authorize('listResponses', $complaint);
+
     $responses = $complaint->responses()->with('user')->get();
 
     if ($responses->isEmpty()) {
@@ -29,6 +32,21 @@ class ResponseController extends Controller
       'message' => 'Responses retrieved successfully',
       'data' => ResponseResource::collection($responses)
     ], 200);
+  }
+
+  public function show(Complaint $complaint, Response $response): JsonResponse {
+    Gate::authorize('showResponse', $complaint);
+
+    if ($complaint->id !== $response->complaint_id) {
+      abort(404, 'Response not found for this complaint');
+    }
+
+    Log::info('Response retrieved successfully');
+    return response()->json([
+      'code' => 200,
+      'message' => 'Response retrieved successfully',
+      'data' => new ResponseResource($response->load('complaint'))
+    ]);
   }
 
   public function create(CreateResponseRequest $request, Complaint $complaint): JsonResponse
@@ -55,8 +73,12 @@ class ResponseController extends Controller
     }
 
     $fields = $request->validated();
+
+    $complaint->update(['status' => $fields['status'] ]);
+    unset($fields['status']);
+    
     $fields['user_id'] = auth()->id();
-    $response = $response->update($fields);
+    $response->update($fields);
 
     Log::info('Response updated successfully');
     return response()->json([

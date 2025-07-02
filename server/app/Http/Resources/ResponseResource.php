@@ -18,6 +18,7 @@ class ResponseResource extends JsonResource
       "id" => $this->id,
       "message" => $this->message,
       'complaintId' => $this->complaint_id,
+      'complaint' => new ComplaintResource($this->whenLoaded('complaint')),
       'userId' => $this->user_id,
       'user' => new UserResource($this->whenLoaded('user')),
       'createdAt' => $this->created_at,
