@@ -7,6 +7,7 @@ import {
   TbHome,
   TbApps,
   TbUsersGroup,
+  TbFolders,
   TbUserCog,
   TbUserEdit,
   TbMailExclamation,
@@ -36,13 +37,18 @@ const Sidebar = ({ isOpen, currentUser, ref }) => {
           { name: 'Dashboard', icon: TbApps, link: '/dashboard' },
           { name: 'Users', icon: TbUsersGroup, link: '/dashboard/users' },
           {
-            name: 'Complaints',
-            icon: TbMailExclamation,
-            link: '/dashboard/complaints',
+            name: 'Categories',
+            icon: TbFolders,
+            link: '/dashboard/categories',
           },
           { name: 'Roles', icon: TbUserCog, link: '/dashboard/roles' },
         ]
       : []),
+    {
+      name: 'Complaints',
+      icon: TbMailExclamation,
+      link: '/dashboard/complaints',
+    },
     { name: 'Profile', icon: TbUserEdit, link: '/dashboard/profile' },
   ];
 
