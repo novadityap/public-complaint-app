@@ -35,7 +35,7 @@ class ComplaintController extends Controller
       })
       ->when($q, function ($query) use ($q) {
         $query->where(function ($subQuery) use ($q) {
-          $subQuery->where('title', 'ilike', "%{$q}%")
+          $subQuery->where('subject', 'ilike', "%{$q}%")
             ->orWhere('content', 'ilike', "%{$q}%")
             ->orWhere('status', 'ilike', "%{$q}%")
             ->orWhereHas('user', function ($userQuery) use ($q) {

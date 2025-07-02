@@ -31,7 +31,7 @@ class UpdateComplaintRequest extends FormRequest
   public function rules(): array
   {
     return [
-      'title' => 'sometimes|required|string',
+      'subject' => 'sometimes|required|string',
       'description' => 'sometimes|required|string',
       'category_id' => 'sometimes|required|uuid|exists:categories,id',
       'images' => 'sometimes|array|max:5',

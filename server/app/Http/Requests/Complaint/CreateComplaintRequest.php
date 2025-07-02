@@ -29,7 +29,7 @@ class CreateComplaintRequest extends FormRequest
   public function rules(): array
   {
     return [
-      'title' => 'required|string',
+      'subject' => 'required|string',
       'description' => 'required|string',
       'category_id' => 'required|uuid|exists:categories,id',
       'images' => 'sometimes|array|max:5',
