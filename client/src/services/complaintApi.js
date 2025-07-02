@@ -79,6 +79,16 @@ const complaintApi = createApi({
         { type: 'Complaint', id: complaintId },
       ],
     }),
+    showResponse: builder.query({
+      query: ({ complaintId, responseId }) => ({
+        url: `/complaints/${complaintId}/responses/${responseId}`,
+        method: 'GET',
+      }),
+      providesTags: (result, error, { complaintId, responseId }) => [
+        { type: 'Response', id: responseId },
+        { type: 'Complaint', id: complaintId }
+      ],
+    }),
     listResponses: builder.query({
       query: complaintId => ({
         url: `/complaints/${complaintId}/responses`,
@@ -100,7 +110,7 @@ const complaintApi = createApi({
       }),
       invalidatesTags: (result, error, { complaintId }) => [
         { type: 'Complaint', id: complaintId },
-        { type: 'Response', id: 'LIST' },
+        { type: 'Response', id: 'LIST' }
       ],
     }),
     updateResponse: builder.mutation({
@@ -111,7 +121,7 @@ const complaintApi = createApi({
       }),
       invalidatesTags: (result, error, { complaintId, responseId }) => [
         { type: 'Complaint', id: complaintId },
-        { type: 'Complaint', id: responseId },
+        { type: 'Response', id: responseId },
       ],
     }),
     removeResponse: builder.mutation({
@@ -121,7 +131,7 @@ const complaintApi = createApi({
       }),
       invalidatesTags: (result, error, { complaintId, responseId }) => [
         { type: 'Complaint', id: complaintId },
-        { type: 'Complaint', id: responseId },
+        { type: 'Response', id: responseId },
       ],
     }),
   }),
@@ -137,6 +147,7 @@ export const {
   useRemoveComplaintMutation,
   useUploadComplaintImageMutation,
   useRemoveComplaintImageMutation,
+  useShowResponseQuery,
   useListResponsesQuery,
   useCreateResponseMutation,
   useUpdateResponseMutation,
