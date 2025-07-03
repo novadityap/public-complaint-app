@@ -10,6 +10,7 @@ import { useShowDashboardQuery } from '@/services/dashboardApi';
 import BreadcrumbNav from '@/components/ui/BreadcrumbNav';
 import { Link } from 'react-router';
 import { cn } from '@/lib/utils';
+import dayjs from 'dayjs';
 
 const StatCard = ({ title, value }) => (
   <Card className="hover:shadow-xl transition-shadow">
@@ -57,8 +58,10 @@ const Dashboard = () => {
 
   const stats = [
     { title: 'Total Complaints', value: data?.data?.totalComplaints },
+    { title: 'Total Responses', value: data?.data?.totalResponses },
     { title: 'Total Users', value: data?.data?.totalUsers },
     { title: 'Total Roles', value: data?.data?.totalRoles },
+    { title: 'Total Categories', value: data?.data?.totalCategories }
   ];
 
   return (
@@ -91,27 +94,50 @@ const Dashboard = () => {
         {isLoading ? (
           <Skeleton className="h-40" />
         ) : (
-          <RecentItemsCard
+          <>
+            <RecentItemsCard
             title="Recent complaints"
             items={data?.data?.recentComplaints}
             link="/dashboard/complaints"
             formatter={complaint => (
               <li
                 key={complaint.id}
-                className="flex justify-between items-center py-1"
+                className="flex justify-between gap-x-10 items-center py-1"
               >
                 <Link
                   to={`/complaints/${complaint.id}`}
-                  className="hover:underline text-blue-700 font-medium truncate"
+                  className="hover:underline text-blue-700 font-medium truncate w-full"
                 >
-                  {complaint.name}
+                  {complaint.subject}
                 </Link>
-                <span className="text-xs text-body">
-                  {new Date(complaint.createdAt).toLocaleDateString()}
+                <span className="text-xs text-body w-20">
+                  {dayjs(complaint.createdAt).format('DD MMM YYYY')}
                 </span>
               </li>
             )}
           />
+          <RecentItemsCard
+            title="Recent complaints"
+            items={data?.data?.recentResponses}
+            link="/dashboard/complaints"
+            formatter={response => (
+              <li
+                key={response.id}
+                className="flex justify-between gap-x-10 items-center py-1"
+              >
+                <Link
+                  to={`/responses/${response.id}`}
+                  className="hover:underline text-blue-700 font-medium truncate w-full"
+                >
+                  {response.message}
+                </Link>
+                <span className="text-xs text-body w-20">
+                  {dayjs(response.createdAt).format('DD MMM YYYY')}
+                </span>
+              </li>
+            )}
+          />
+          </>
         )}
       </div>
     </>
