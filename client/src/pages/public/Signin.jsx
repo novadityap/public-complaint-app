@@ -33,7 +33,7 @@ const Signin = () => {
   const { form, handleSubmit, isLoading, error, isSuccess, message } =
     useFormHandler({
       mutation: useSigninMutation,
-      formType: 'signin',
+      page: 'signin',
       defaultValues: { 
         email: '', 
         password: '' 
@@ -41,7 +41,7 @@ const Signin = () => {
     });
 
   useEffect(() => {
-    if (token || isSuccess) navigate('/');
+    if (token || isSuccess) navigate('/dashboard');
   }, [token, isSuccess, navigate]);
 
   if (!token) {
@@ -90,7 +90,7 @@ const Signin = () => {
               />
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full cursor-pointer"
                 disabled={isLoading}
               >
                 {isLoading ? (

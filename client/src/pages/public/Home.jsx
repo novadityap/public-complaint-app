@@ -2,8 +2,11 @@ import { Button } from "@/components/shadcn/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/shadcn/card"
 import { Link } from "react-router"
 import homeComplaint from "@/assets/homeComplaint.svg" 
+import { useSelector } from "react-redux"
 
 const Home = () => {
+  const { token } = useSelector(state => state.auth);
+
   return (
     <div className="max-w-5xl mx-auto px-6 py-12 space-y-16">
       <section className="grid grid-cols-1 md:grid-cols-2 items-center gap-10">
@@ -15,7 +18,11 @@ const Home = () => {
             This platform enables you to report public issues directly to the local government. Whether it's infrastructure problems, safety concerns, or public service complaints — we help your voice reach the right place.
           </p>
           <Button asChild>
-            <Link to="/complaints/create">Submit a Complaint</Link>
+            {token ? (
+              <Link to="/dashboard/complaints">Submit a Complaint</Link>
+            ) : (
+              <Link to="/signin">Sign In</Link>
+            )}
           </Button>
         </div>
 
