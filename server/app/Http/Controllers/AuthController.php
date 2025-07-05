@@ -230,7 +230,7 @@ class AuthController extends Controller
     ], 200);
   }
 
-  public function resetPasswordRequest(ResetPasswordRequest $request): JsonResponse
+  public function requestResetPassword(ResetPasswordRequest $request): JsonResponse
   {
     $fields = $request->validated();
 
@@ -262,17 +262,15 @@ class AuthController extends Controller
   public function resetPassword(ResetPasswordActionRequest $request): JsonResponse
   {
     $fields = $request->validated();
-    $user = User::where('reset_token', $request->reset_token)
+    
+    $user = User::where('reset_token', $request->resetToken)
       ->where('reset_token_expires', '>', Carbon::now())
       ->first();
 
-    if (!$user)
-      throw ValidationException::withMessages([
-        'reset_token' => ['Reset token is invalid or has expired']
-      ]);
+    if (!$user) abort(401, 'Reset token is invalid or has expired');
 
     $user->update([
-      'password' => Hash::make($fields['password']),
+      'password' => Hash::make($fields['new_password']),
       'reset_token' => null,
       'reset_token_expires' => null
     ]);

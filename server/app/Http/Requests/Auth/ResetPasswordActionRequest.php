@@ -14,6 +14,13 @@ class ResetPasswordActionRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+  {
+    $this->merge([
+      'new_password' => $this->input('newPassword')
+    ]);
+  }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -22,7 +29,7 @@ class ResetPasswordActionRequest extends FormRequest
     public function rules(): array
     {
         return [
-          'password' => 'required|string|min:6'
+          'new_password' => 'required|string|min:6'
         ];
     }
 }
