@@ -97,7 +97,6 @@ const useFormHandler = ({
 
       if (e.code !== 400) {
         toast.error(e.message);
-      } else {
         setMessage(e.message);
       }
     }
