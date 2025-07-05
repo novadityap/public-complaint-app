@@ -17,7 +17,10 @@ class ResponseController extends Controller
   {
     Gate::authorize('listResponses', $complaint);
 
-    $responses = $complaint->responses()->with('user')->get();
+    $responses = $complaint->responses()
+      ->with('user')
+      ->orderBy('created_at', 'desc')
+      ->get();
 
     if ($responses->isEmpty()) {
       return response()->json([
