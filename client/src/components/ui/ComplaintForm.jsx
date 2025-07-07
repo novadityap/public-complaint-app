@@ -31,7 +31,7 @@ import {
 } from '@/services/complaintApi';
 import { Skeleton } from '@/components/shadcn/skeleton';
 
-const ComplaintSkeleton = isCreate => (
+const ComplaintSkeleton = ({isCreate}) => (
   <div className="space-y-4">
     {!isCreate && (
       <div className="flex justify-center">

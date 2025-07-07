@@ -14,6 +14,12 @@ const getChangedData = (dirtyFields, form) => {
   );
 };
 
+const sanitizeNull = data => {
+  return Object.fromEntries(
+    Object.entries(data).map(([key, value]) => [key, value ?? ''])
+  );
+};
+
 const buildFormData = ({ data, fileFieldname, isMultiple, method }) => {
   const formData = new FormData();
 
@@ -86,7 +92,11 @@ const useFormHandler = ({
       toast.success(result.message);
       setMessage(result.message);
 
-      form.reset(result.data);
+      if (result.data && typeof result.data === 'object') {
+        form.reset(sanitizeNull(result.data));
+      } else {
+        form.reset();
+      }
     } catch (e) {
       if (e.errors) {
         Object.keys(e.errors).forEach(key => {

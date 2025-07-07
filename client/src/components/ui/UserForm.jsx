@@ -43,7 +43,7 @@ const UserFormSkeleton = ({ isCreate }) => (
     <Skeleton className="h-4 w-20" />
     <Skeleton className="h-10 w-full" />
     <Skeleton className="h-4 w-20" />
-    <Skeleton className="h-10 w-full" />
+    <Skeleton className="h-10 w-full" />  
     <Skeleton className="h-4 w-20" />
     <Skeleton className="h-10 w-full" />
     <div className="flex justify-end gap-2">
@@ -65,7 +65,6 @@ const UserForm = ({ id, onSubmitComplete, onCancel, isCreate }) => {
     mutation: isCreate ? useCreateUserMutation : useUpdateUserMutation,
     onSubmitComplete,
     defaultValues: {
-      avatar: '',
       username: '',
       email: '',
       password: '',
@@ -83,6 +82,7 @@ const UserForm = ({ id, onSubmitComplete, onCancel, isCreate }) => {
         username: user.data.username,
         email: user.data.email,
         roleId: user.data.roleId,
+        password: ''
       });
     }
   }, [user, roles]);

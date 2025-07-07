@@ -15,16 +15,16 @@ import { cn } from '@/lib/utils';
 
 const VerifyEmailSkeleton = () => (
   <div className="w-full sm:w-[450px]">
-        <div className="flex flex-col gap-y-5">
-          <Skeleton className="h-56 w-96 rounded-xl" />
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-96" />
-            <Skeleton className="h-4 w-96" />
-            <Skeleton className="h-4 w-64" />
-          </div>
-        </div>
+    <div className="flex flex-col gap-y-5">
+      <Skeleton className="h-56 w-96 rounded-xl" />
+      <div className="space-y-2">
+        <Skeleton className="h-4 w-96" />
+        <Skeleton className="h-4 w-96" />
+        <Skeleton className="h-4 w-64" />
       </div>
-)
+    </div>
+  </div>
+);
 
 const VerifyEmail = () => {
   const { verificationToken } = useParams();
