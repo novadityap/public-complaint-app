@@ -7,6 +7,11 @@ use App\Models\User;
 
 class UserPolicy
 {
+    public function show(User $authUser, User $user): bool
+    {
+      return $authUser->id === $user->id || $authUser->role->name === 'admin';
+    }
+
     public function profile(User $authUser, User $user): bool
     {
       return $authUser->id === $user->id || $authUser->role->name === 'admin';

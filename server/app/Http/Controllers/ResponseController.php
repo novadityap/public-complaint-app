@@ -6,7 +6,6 @@ use App\Models\Response;
 use App\Models\Complaint;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Gate;
 use App\Http\Resources\ResponseResource;
 use App\Http\Requests\Response\CreateResponseRequest;
 use App\Http\Requests\Response\UpdateResponseRequest;
@@ -15,8 +14,6 @@ class ResponseController extends Controller
 {
   public function list(Complaint $complaint): JsonResponse
   {
-    Gate::authorize('listResponses', $complaint);
-
     $responses = $complaint->responses()
       ->with('user')
       ->orderBy('created_at', 'desc')
@@ -38,8 +35,6 @@ class ResponseController extends Controller
   }
 
   public function show(Complaint $complaint, Response $response): JsonResponse {
-    Gate::authorize('showResponse', $complaint);
-
     if ($complaint->id !== $response->complaint_id) {
       abort(404, 'Response not found for this complaint');
     }
@@ -64,9 +59,9 @@ class ResponseController extends Controller
 
     Log::info('Response created successfully');
     return response()->json([
-      'code' => 200,
+      'code' => 201,
       'message' => 'Response created successfully'
-    ], 200);
+    ], 201);
   }
 
   public function update(UpdateResponseRequest $request, Complaint $complaint, Response $response): JsonResponse

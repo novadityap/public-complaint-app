@@ -6,6 +6,14 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class SearchUserRequest extends FormRequest
 {
+  public function prepareForValidation()
+  {
+    $this->merge([
+      'page' => (int) $this->input('page', 1),
+      'limit' => (int) $this->input('limit', 10),
+    ]);
+  }
+
   /**
    * Determine if the user is authorized to make this request.
    */

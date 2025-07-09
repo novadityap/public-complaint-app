@@ -10,6 +10,7 @@ use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use App\Mail\VerifyEmail;
 use App\Mail\ResetPassword;
+use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Support\Str;
 use App\Models\RefreshToken;
 use Illuminate\Http\Request;
@@ -131,11 +132,11 @@ class AuthController extends Controller
         'iat' => now()->timestamp,
         'exp' => now()->addDays((int) config('auth.jwt_refresh_expires'))->timestamp
       ],
-      config('auth.jwt_secret'),
+      config('auth.jwt_refresh_secret'),
       config('auth.jwt_algo')
     );
 
-    $decodedRefreshToken = JWT::decode($refreshToken, new Key(config('auth.jwt_secret'), config('auth.jwt_algo')));
+    $decodedRefreshToken = JWT::decode($refreshToken, new Key(config('auth.jwt_refresh_secret'), config('auth.jwt_algo')));
 
     RefreshToken::create([
       'token' => $refreshToken,
@@ -166,11 +167,12 @@ class AuthController extends Controller
   public function signout(Request $request): Response
   {
     $refreshToken = $request->cookie('refreshToken');
+
     if (!$refreshToken)
-      abort(401, 'Refresh is not provided');
+      abort(401, 'Refresh token is not provided');
 
     try {
-      JWT::decode($refreshToken, new Key(config('auth.jwt_secret'), config('auth.jwt_algo')));
+      JWT::decode($refreshToken, new Key(config('auth.jwt_refresh_secret'), config('auth.jwt_algo')));
     } catch (\Throwable $e) {
       if ($e instanceof ExpiredException) {
         abort(401, 'Refresh token has expired');
@@ -190,11 +192,12 @@ class AuthController extends Controller
   public function refreshToken(Request $request): JsonResponse
   {
     $refreshToken = $request->cookie('refreshToken');
+
     if (!$refreshToken)
-      abort(401, 'Refresh is not provided');
+      abort(401, 'Refresh token is not provided');
 
     try {
-      JWT::decode($refreshToken, new Key(config('auth.jwt_secret'), config('auth.jwt_algo')));
+      JWT::decode($refreshToken, new Key(config('auth.jwt_refresh_secret'), config('auth.jwt_algo')));
     } catch (\Throwable $e) {
       if ($e instanceof ExpiredException) {
         abort(401, 'Refresh token has expired');
@@ -255,19 +258,20 @@ class AuthController extends Controller
     Log::info('Reset password request sent successfully');
     return response()->json([
       'code' => 200,
-      'message' => 'Reset password request sent successfully'
+      'message' => 'Please check your email to reset your password'
     ], 200);
   }
 
   public function resetPassword(ResetPasswordActionRequest $request): JsonResponse
   {
     $fields = $request->validated();
-    
+
     $user = User::where('reset_token', $request->resetToken)
       ->where('reset_token_expires', '>', Carbon::now())
       ->first();
 
-    if (!$user) abort(401, 'Reset token is invalid or has expired');
+    if (!$user)
+      abort(401, 'Reset token is invalid or has expired');
 
     $user->update([
       'password' => Hash::make($fields['new_password']),

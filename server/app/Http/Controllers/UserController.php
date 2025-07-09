@@ -4,12 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 
-use Illuminate\Http\Request;
 use App\Helpers\CloudinaryHelper;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use App\Http\Resources\UserResource;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\User\ProfileRequest;
 use App\Http\Requests\User\CreateUserRequest;
@@ -97,8 +95,6 @@ class UserController extends Controller
 
   public function update(UpdateUserRequest $request, User $user): JsonResponse
   {
-    Gate::authorize('update', $user);
-
     $fields = $request->validated();
     
     if (isset($fields['password'])) {
@@ -123,8 +119,6 @@ class UserController extends Controller
 
   public function profile(ProfileRequest $request, User $user): JsonResponse
   {
-    Gate::authorize('profile', $user);
-    
     $fields = $request->validated();
 
     if (isset($fields['password'])) {

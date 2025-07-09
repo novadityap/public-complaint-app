@@ -3,12 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Complaint;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use App\Helpers\CloudinaryHelper;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Gate;
 use App\Http\Resources\ComplaintResource;
 use Illuminate\Validation\ValidationException;
 use App\Http\Requests\Complaint\CreateComplaintRequest;
@@ -36,7 +33,7 @@ class ComplaintController extends Controller
       ->when($q, function ($query) use ($q) {
         $query->where(function ($subQuery) use ($q) {
           $subQuery->where('subject', 'ilike', "%{$q}%")
-            ->orWhere('content', 'ilike', "%{$q}%")
+            ->orWhere('description', 'ilike', "%{$q}%")
             ->orWhere('status', 'ilike', "%{$q}%")
             ->orWhereHas('user', function ($userQuery) use ($q) {
               $userQuery->where('email', 'ilike', "%{$q}%");
@@ -105,8 +102,6 @@ class ComplaintController extends Controller
 
   public function show(Complaint $complaint): JsonResponse
   {
-    Gate::authorize('show', $complaint);
-
     $complaint->load(['category', 'user']);
 
     Log::info('Complaint retrieved successfully');
@@ -119,13 +114,11 @@ class ComplaintController extends Controller
 
   public function update(UpdateComplaintRequest $request, Complaint $complaint): JsonResponse
   {
-    Gate::authorize('update', $complaint);
-    
     $fields = $request->validated();
     $newImageUrls = [];
 
     $newImages = $request->file('images') ?? [];
-    $totalImages = count($complaint->images) + count($newImages);
+    $totalImages = count($complaint->images ?? []) + count($newImages);
 
     if ($totalImages > 5)
       throw ValidationException::withMessages([
@@ -139,7 +132,7 @@ class ComplaintController extends Controller
       }
     }
 
-    $imagesToDelete = array_filter($complaint->images, function ($image) use ($newImageUrls) {
+    $imagesToDelete = array_filter($complaint->images ?? [], function ($image) use ($newImageUrls) {
       return !in_array($image, $newImageUrls);
     });
 
@@ -163,9 +156,7 @@ class ComplaintController extends Controller
 
   public function delete(Complaint $complaint): JsonResponse
   {
-    Gate::authorize('delete', $complaint);
-
-    foreach ($complaint->images as $image) {
+    foreach ($complaint->images ?? [] as $image) {
       cloudinary()->uploadApi()->destroy(CloudinaryHelper::extractPublicId($image));
     }
     Log::info('Complaint image deleted successfully');
@@ -183,7 +174,7 @@ class ComplaintController extends Controller
   {
     $newImageUrls = [];
     $newImages = $request->file('images') ?? [];
-    $totalImages = count($complaint->images) + count($newImages);
+    $totalImages = count($complaint->images ?? []) + count($newImages);
 
     if ($totalImages > 5) {
       throw ValidationException::withMessages([
@@ -199,15 +190,15 @@ class ComplaintController extends Controller
     }
 
     $complaint->update([
-      'images' => array_merge($complaint->images, $newImageUrls)
+      'images' => array_merge($complaint->images ?? [], $newImageUrls)
     ]);
 
-    Log::info('Complaint image uploaded successfully');
+    Log::info('Complaint images uploaded successfully');
     return response()->json([
-      'code' => 200,
-      'message' => 'Complaint image uploaded successfully',
+      'code' => 201,
+      'message' => 'Complaint images uploaded successfully',
       'data' => new ComplaintResource($complaint)
-    ], 200);
+    ], 201);
   }
 
   public function deleteImage(DeleteComplaintImageRequest $request, Complaint $complaint): JsonResponse
