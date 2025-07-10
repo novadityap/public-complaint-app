@@ -91,7 +91,7 @@ const ResetPassword = () => {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full cursor-pointer" disabled={isLoading}>
+            <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <TbLoader className="animate-spin mr-2 size-5" />

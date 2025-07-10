@@ -22,6 +22,7 @@ import User from '@/pages/private/User';
 import Role from '@/pages/private/Role';
 import Category from '@/pages/private/Category';
 import Complaint from '@/pages/private/Complaint';
+import GoogleCallback from '@/pages/public/GoogleCallback';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -55,6 +56,7 @@ const router = createBrowserRouter(
           </Route>
         </Route>
       </Route>
+      <Route path="google/callback" element={<GoogleCallback />} />
       <Route path="unauthorized" element={<Unauthorized />} />
       <Route path="*" element={<NotFound />} />
     </Route>

@@ -38,7 +38,7 @@ const Header = ({ onToggleSidebar }) => {
                 <Link to="/signin">
                   <Button
                     variant="ghost"
-                    className="font-semibold cursor-pointer text-heading"
+                    className="font-semibold text-heading"
                   >
                     Sign In
                   </Button>
@@ -46,7 +46,7 @@ const Header = ({ onToggleSidebar }) => {
               </>
             )}
             <Link to="/" className="md:order-1">
-              <Button variant="ghost" className="font-semibold cursor-pointer text-heading">
+              <Button variant="ghost" className="font-semibold text-heading">
                 Home
               </Button>
             </Link>

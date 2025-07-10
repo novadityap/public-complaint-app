@@ -70,10 +70,10 @@ const RoleForm = ({ onSubmitComplete, onCancel, isCreate, id }) => {
           )}
         />
         <div className="flex justify-end gap-x-2">
-          <Button className="cursor-pointer" variant="secondary" type="button" onClick={onCancel}>
+          <Button variant="secondary" type="button" onClick={onCancel}>
             Cancel
           </Button>
-          <Button className="cursor-pointer" type="submit" disabled={isLoading}>
+          <Button type="submit" disabled={isLoading}>
             {isLoading ? (
               <>
                 <TbLoader className="animate-spin" />

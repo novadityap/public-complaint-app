@@ -31,7 +31,7 @@ const NotFound = () => {
           />
         </CardContent>
         <CardFooter className="flex justify-center mt-6">
-          <Button className="cursor-pointer" onClick={() => navigate('/')}>Back to Home</Button>
+          <Button onClick={() => navigate('/')}>Back to Home</Button>
         </CardFooter>
       </Card>
     </div>

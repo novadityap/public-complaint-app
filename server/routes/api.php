@@ -14,6 +14,7 @@ Route::prefix('auth')->controller(AuthController::class)->group(function () {
   Route::post('/verify-email/{verificationToken}', 'verifyEmail');
   Route::post('/resend-verification', 'resendVerification');
   Route::post('/signin', 'signin');
+  Route::post('/google-signin', 'googleSignin');
   Route::post('/refresh-token', 'refreshToken');
   Route::post('/reset-password/{resetToken}', 'resetPassword');
   Route::post('/request-reset-password', 'requestResetPassword');

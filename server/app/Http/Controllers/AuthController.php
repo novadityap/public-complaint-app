@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\UserResource;
 use Carbon\Carbon;
 use App\Models\Role;
 use App\Models\User;
@@ -10,24 +9,32 @@ use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use App\Mail\VerifyEmail;
 use App\Mail\ResetPassword;
-use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Support\Str;
 use App\Models\RefreshToken;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
+use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Laravel\Socialite\Facades\Socialite;
 use App\Http\Requests\Auth\SigninRequest;
 use App\Http\Requests\Auth\SignupRequest;
 use App\Http\Requests\Auth\VerifyEmailRequest;
 use Illuminate\Validation\ValidationException;
 use App\Http\Requests\Auth\ResetPasswordRequest;
+use Illuminate\Cookie\Middleware\EncryptCookies;
 use App\Http\Requests\Auth\ResetPasswordActionRequest;
 
 class AuthController extends Controller
 {
+  private function generateUsername(string $username, int $count): string
+  {
+    $slug = Str::slug($username);
+    return $count > 0 ? "{$slug}{$count}" : $slug;
+  }
+
   public function signup(SignupRequest $request): JsonResponse
   {
     $fields = $request->validated();
@@ -112,26 +119,117 @@ class AuthController extends Controller
       abort(401, 'Email or password is invalid');
     }
 
+    $payload = [
+      'sub' => $user->id,
+      'role' => $user->role->name
+    ];
+
     $token = JWT::encode(
-      [
-        'sub' => $user->id,
-        'role' => $user->role->name,
-        'email' => $user->email,
+      array_merge($payload, [
         'iat' => now()->timestamp,
         'exp' => now()->addMinutes((int) config('auth.jwt_expires'))->timestamp
-      ],
+      ]),
       config('auth.jwt_secret'),
       config('auth.jwt_algo')
     );
 
     $refreshToken = JWT::encode(
-      [
-        'sub' => $user->id,
-        'role' => $user->role->name,
-        'email' => $user->email,
+      array_merge($payload, [
         'iat' => now()->timestamp,
         'exp' => now()->addDays((int) config('auth.jwt_refresh_expires'))->timestamp
-      ],
+      ]),
+      config('auth.jwt_refresh_secret'),
+      config('auth.jwt_algo')
+    );
+
+    $decodedRefreshToken = JWT::decode($refreshToken, new Key(config('auth.jwt_refresh_secret'), config('auth.jwt_algo')));
+
+    RefreshToken::create([
+      'token' => $refreshToken,
+      'user_id' => $user->id,
+      'expires_at' => Carbon::createFromTimestamp($decodedRefreshToken->exp)
+    ]);
+
+    $user->token = $token;
+
+    Log::info('Signed in successfully');
+    return response()
+      ->json([
+        'code' => 200,
+        'message' => 'Signed in successfully',
+        'data' => new UserResource($user),
+      ], 200)
+      ->cookie(
+        'refreshToken',
+        $refreshToken,
+        config('auth.jwt_refresh_expires'),
+        '/',
+        null,
+        false,
+        true,
+      );
+  }
+
+  public function googleSignin(Request $request): JsonResponse
+  {
+    if (!$request->code) {
+      abort(401, 'Authorization code is not provided');
+    }
+
+    $googleUser = Socialite::driver('google')
+      ->stateless()
+      ->user();
+
+    $user = User::where('email', $googleUser->email)->first();
+
+    if (!$user) {
+      $count = 0;
+      $username = null;
+      $isUsernameTaken = true;
+
+      while ($isUsernameTaken) {
+        $username = $this->generateUsername($googleUser->name, $count);
+        $existing = User::where('username', $username)->first();
+        if (!$existing)
+          $isUsernameTaken = false;
+        $count++;
+      }
+
+      $userRole = Role::where('name', 'user')->first();
+
+      $user = User::create([
+        'username' => $username,
+        'email' => $googleUser->email,
+        'avatar' => config('app.default_avatar_url'),
+        'role_id' => $userRole->id,
+        'is_verified' => true,
+      ]);
+    } elseif (!$user->is_verified) {
+      $user->is_verified = true;
+      $user->save();
+    }
+
+    $user->load('role');
+
+    $payload = [
+      'sub' => $user->id,
+      'role' => $user->role->name
+    ];
+
+    $token = JWT::encode(
+      array_merge($payload, [
+        'iat' => now()->timestamp,
+        'exp' => now()->addMinutes((int) config('auth.jwt_expires'))->timestamp
+      ]),
+      config('auth.jwt_secret'),
+      config('auth.jwt_algo')
+    );
+
+    $refreshToken = JWT::encode(
+      array_merge($payload, [
+        'iat' => now()->timestamp,
+        'exp' => now()->addDays((int) config('auth.jwt_refresh_expires'))->timestamp
+      ]),
       config('auth.jwt_refresh_secret'),
       config('auth.jwt_algo')
     );

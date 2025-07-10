@@ -58,6 +58,13 @@ const authApi = createApi({
         data,
       }),
     }),
+    googleSignin: builder.mutation({
+      query: data => ({
+        url: '/auth/google-signin',
+        method: 'POST',
+        data,
+      }),
+    })
   }),
 });
 
@@ -70,6 +77,7 @@ export const {
   useResendVerificationMutation,
   useRequestResetPasswordMutation,
   useResetPasswordMutation,
+  useGoogleSigninMutation
 } = authApi;
 
 export default authApi;

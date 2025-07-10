@@ -239,7 +239,7 @@ const DataTable = ({
           (entityName !== 'complaint' || currentUser.role !== 'admin') && (
             <Button
               onClick={() => handleOpenModal('create')}
-              className="flex items-center gap-2 cursor-pointer"
+              className="flex items-center gap-2"
             >
               <TbPlus className="size-4" />
               <span>Add</span>

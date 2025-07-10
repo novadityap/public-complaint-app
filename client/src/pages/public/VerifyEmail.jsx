@@ -59,7 +59,7 @@ const VerifyEmail = () => {
               to={isError ? '/resend-verification' : '/signin'}
               className="w-full"
             >
-              <Button className="w-full cursor-pointer">
+              <Button className="w-full">
                 {isError ? 'Resend Email' : 'Sign In'}
               </Button>
             </Link>

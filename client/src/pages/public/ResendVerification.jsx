@@ -65,7 +65,7 @@ const ResendVerification = () => {
             />
             <Button
               type="submit"
-              className="w-full cursor-pointer"
+              className="w-full"
               disabled={isLoading}
             >
               {isLoading ? (

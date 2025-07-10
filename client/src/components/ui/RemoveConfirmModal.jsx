@@ -20,7 +20,6 @@ const RemoveConfirmModal = ({ isOpen, onClose, onConfirm, isLoading }) => (
       </DialogHeader>
       <DialogFooter>
         <Button
-          className="cursor-pointer"
           variant="secondary"
           type="button"
           onClick={() => onClose(false)}
@@ -28,7 +27,6 @@ const RemoveConfirmModal = ({ isOpen, onClose, onConfirm, isLoading }) => (
           Cancel
         </Button>
         <Button
-          className="cursor-pointer"
           variant="destructive"
           onClick={onConfirm}
           disabled={isLoading}

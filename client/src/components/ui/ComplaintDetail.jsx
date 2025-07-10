@@ -140,7 +140,7 @@ const ResponseList = ({ complaintId, responses }) => {
             <Button
               size="sm"
               onClick={() => handleOpenModal('create')}
-              className="gap-1 cursor-pointer"
+              className="gap-1"
             >
               <TbPlus className="size-5" />
               Add
@@ -294,7 +294,6 @@ const ResponseForm = ({
           />
           <div className="flex justify-end gap-x-2">
             <Button
-              className="cursor-pointer"
               variant="secondary"
               type="button"
               onClick={onCancel}
@@ -302,7 +301,6 @@ const ResponseForm = ({
               Cancel
             </Button>
             <Button
-              className="cursor-pointer"
               type="submit"
               disabled={isLoading}
             >

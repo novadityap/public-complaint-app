@@ -141,7 +141,7 @@ const Profile = () => {
               <div className="flex justify-end">
                 <Button
                   type="submit"
-                  className="w-full sm:w-32 cursor-pointer"
+                  className="w-full sm:w-32"
                   disabled={isLoading}
                 >
                   {isLoading ? (
