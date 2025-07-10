@@ -40,7 +40,7 @@ const Signup = () => {
           Sign Up
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-4">
         {isSuccess && (
           <Alert variant="success">
             <TbCircleCheck className="size-5 text-green-500" />
