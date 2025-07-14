@@ -1,0 +1,56 @@
+services:
+  server:
+    image: novadityap/public-complaint-app-server-dev
+    container_name: public-complaint-app-server-dev
+    build:
+      context: ./server
+      dockerfile: Dockerfile.development
+    env_file:
+      - ./server/.env.development
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    restart: always
+    volumes:
+      - ./server:/var/www/html
+      - /var/www/html/vendor
+    networks:
+      - public-complaint-app-dev
+
+  client:
+    image: novadityap/public-complaint-app-client-dev
+    container_name: public-complaint-app-client-dev
+    build:
+      context: ./client
+      dockerfile: Dockerfile.development
+    env_file:
+      - ./client/.env.development
+    ports:
+      - "5173:5173"
+    restart: always
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    networks:
+      - public-complaint-app-dev
+
+  postgres:
+    container_name: public-complaint-app-postgres-dev
+    image: postgres:17-alpine
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: aditya123
+      POSTGRES_DB: public_complaint_app
+    networks:
+      - public-complaint-app-dev
+
+volumes:
+  postgres-data:
+    name: postgres-data
+networks:
+  public-complaint-app-dev:
+    name: public-complaint-app-dev

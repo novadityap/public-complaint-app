@@ -1,0 +1,19 @@
+services:
+  server:
+    image: novadityap/public-complaint-app-server
+    build:
+      context: ./server
+      dockerfile: Dockerfile.production
+    ports:
+      - "4000:4000"
+    restart: always
+
+  client:
+    image: novadityap/public-complaint-app-client
+    build:
+      context: ./client
+      dockerfile: Dockerfile.production
+    ports:
+      - "3000:80"
+    restart: always
+
