@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router';
 import { useGoogleSigninMutation } from '@/services/authApi';
 import { setToken, setCurrentUser } from '@/features/authSlice';
 import { useDispatch } from 'react-redux';
