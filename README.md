@@ -7,7 +7,7 @@ A full-stack platform for submitting and managing public complaints, featuring a
 ## 🚀 Tech Stack
 
 ### Backend
-- **Laravel** — PHP web framework for building RESTful APIs
+- **Laravel** — PHP web framework for building RESTful API
 - **PostgreSQL** — Relational database managed using Prisma ORM
 - **Authentication** — JSON Web Token (JWT) and Google OAuth 2.0
 
