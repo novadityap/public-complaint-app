@@ -47,7 +47,6 @@ pipeline {
     stage('Run Server Tests') {
       steps {
         sh '''
-          sleep 10
           docker compose -f docker-compose.development.yml run server bash -c "
             php artisan migrate:fresh --seed &&
             php artisan test
