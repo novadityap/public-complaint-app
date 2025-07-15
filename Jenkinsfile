@@ -37,6 +37,10 @@ pipeline {
     stage('Run Server Tests') {
       steps {
         sh '''
+          until docker compose -f docker-compose.development.yml exec server bash -c "nc -z postgres 5432"; do
+            sleep 1
+          done
+
           docker compose -f docker-compose.development.yml exec server bash -c "
             php artisan migrate:fresh --seed &&
             php artisan test
