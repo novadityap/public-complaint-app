@@ -3,6 +3,7 @@ FROM php:8.4-fpm-alpine
 WORKDIR /var/www/html
 
 RUN apk add --no-cache \
+    git \
     curl \
     libzip-dev \
     zlib-dev \

@@ -76,14 +76,12 @@ pipeline {
   }
 
   post {
-    always {
-      steps {
-        sh '''
-          docker compose -f docker-compose.development.yml down --volumes --remove-orphans || true
-          docker system prune -af --volumes || true
-        '''
-        cleanWs()
-      }
+     always {
+      sh '''
+        docker compose -f docker-compose.development.yml down --volumes --remove-orphans || true
+        docker system prune -af --volumes || true
+      '''
+      cleanWs()
     }
   }
 }
