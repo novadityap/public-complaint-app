@@ -44,7 +44,7 @@ pipeline {
 
           docker compose -f docker-compose.development.yml exec server bash -c "
             php artisan migrate:fresh --seed &&
-            php artisan test --stop-on-failure --verbose
+            php artisan test --stop-on-failure
           "
         '''
       }
