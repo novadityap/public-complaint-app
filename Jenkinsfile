@@ -48,7 +48,7 @@ pipeline {
       steps {
         sh '''
           sleep 10
-          docker compose -f docker-compose.development.yml exec -w /var/www/html server bash -c "
+          docker compose -f docker-compose.development.yml run --rm server bash -c "
             php artisan config:clear &&
             php artisan migrate:fresh --seed &&
             php artisan test
