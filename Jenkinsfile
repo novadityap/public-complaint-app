@@ -20,6 +20,7 @@ pipeline {
             cp "$CLIENT_DEV_ENV" client/.env.development
             cp "$CLIENT_PROD_ENV" client/.env.production
             cp "$SERVER_DEV_ENV" server/.env.development
+            cp server/.env.development server/.env
           '''
         }
       }
@@ -44,7 +45,7 @@ pipeline {
 
           docker compose -f docker-compose.development.yml exec server bash -c "
             php artisan migrate:fresh --seed &&
-            php artisan test --debug
+            php artisan test 
           "
         '''
       }
