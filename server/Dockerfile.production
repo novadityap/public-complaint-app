@@ -18,11 +18,9 @@ RUN docker-php-ext-install \
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-COPY composer.json composer.lock ./
+COPY . .
 
 RUN composer install --optimize-autoloader --no-dev --no-interaction --no-progress
-
-COPY . .
 
 RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
 
