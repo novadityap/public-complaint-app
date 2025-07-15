@@ -3,6 +3,7 @@
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use App\Mail\VerifyEmail;
+use App\Mail\ResetPassword;
 
 describe('POST /api/auth/signup', function () {
   beforeEach(function () {
@@ -288,8 +289,13 @@ describe('POST /api/auth/refresh-token', function () {
 });
 
 describe('POST /api/auth/request-reset-password', function () {
+  beforeEach(function () {
+    Mail::fake();
+  });
+
   afterEach(function () {
     removeAllTestUsers();
+    Mail::clearResolvedInstances();
   });
 
   it('should return an error if input data is invalid', function () {
@@ -319,6 +325,7 @@ describe('POST /api/auth/request-reset-password', function () {
 
     expect($result->status())->toBe(200);
     expect($result->json('message'))->toBe('Please check your email to reset your password');
+    Mail::assertSent(ResetPassword::class, 1);
   });
 });
 
