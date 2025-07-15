@@ -28,6 +28,7 @@ pipeline {
     stage('Start Dev Containers') {
       steps {
         sh '''
+          docker system prune -af --volumes || true
           docker compose -f docker-compose.development.yml down --volumes --remove-orphans || true
           docker compose -f docker-compose.development.yml up -d --build
         '''
