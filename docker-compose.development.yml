@@ -41,7 +41,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - public-complaint-postgres-data:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: aditya123
       POSTGRES_DB: public_complaint_app
@@ -49,8 +49,8 @@ services:
       - public-complaint-app-dev
 
 volumes:
-  postgres-data:
-    name: postgres-data
+  public-complaint-postgres-data:
+    name: public-complaint-postgres-data
 networks:
   public-complaint-app-dev:
     name: public-complaint-app-dev
