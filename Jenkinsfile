@@ -46,7 +46,7 @@ pipeline {
 
     stage('Run Server Tests') {
       steps {
-        sh 'docker compose -f docker-compose.development.yml exec server npm run test'
+        sh 'docker compose -f docker-compose.development.yml exec server php artisan test'
       }
     }
 
