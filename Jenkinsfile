@@ -2,52 +2,41 @@ pipeline {
   agent any
 
   stages {
-    stage('Clean Workspace') {
+    stage('Checkout & Clean') {
       steps {
-        deleteDir()
-      }
-    }
-
-    stage('Checkout') {
-      steps {
+        cleanWs()
         checkout scm
       }
     }
 
-    stage('Stop & Remove Dev Containers') {
-      steps {
-        sh '''
-          docker compose -f docker-compose.development.yml down --remove-orphans || true
-        '''
-      }
-    }
-
-    stage('Copy env file') {
+    stage('Copy .env Files') {
       steps {
         withCredentials([
           file(credentialsId: 'public-complaint-app-client-dev-env', variable: 'CLIENT_DEV_ENV'),
           file(credentialsId: 'public-complaint-app-client-prod-env', variable: 'CLIENT_PROD_ENV'),
           file(credentialsId: 'public-complaint-app-server-dev-env', variable: 'SERVER_DEV_ENV'),
         ]) {
-          sh """
+          sh '''
             cp "$CLIENT_DEV_ENV" client/.env.development
             cp "$CLIENT_PROD_ENV" client/.env.production
             cp "$SERVER_DEV_ENV" server/.env.development
-          """
+          '''
         }
       }
     }
 
-    stage('Build & Up Dev Containers') {
+    stage('Start Dev Containers') {
       steps {
-        sh 'docker compose -f docker-compose.development.yml up -d --build'
+        sh '''
+          docker compose -f docker-compose.development.yml down --volumes --remove-orphans || true
+          docker compose -f docker-compose.development.yml up -d --build
+        '''
       }
     }
 
     stage('Run Server Tests') {
       steps {
         sh '''
-          sleep 10
           docker compose -f docker-compose.development.yml exec server bash -c "
             php artisan migrate:fresh --seed &&
             php artisan test
@@ -56,7 +45,7 @@ pipeline {
       }
     }
 
-    stage('Build Production Docker Images') {
+    stage('Build Production Images') {
       steps {
         sh 'docker compose -f docker-compose.production.yml build'
       }
@@ -78,14 +67,17 @@ pipeline {
         }
       }
     }
+  }
 
-    stage('Cleanup Dev Containers After Push') {
+  post {
+    always {
       steps {
         sh '''
-          docker compose -f docker-compose.development.yml down --remove-orphans || true
+          docker compose -f docker-compose.development.yml down --volumes --remove-orphans || true
+          docker system prune -af --volumes || true
         '''
+        cleanWs()
       }
     }
   }
 }
-
