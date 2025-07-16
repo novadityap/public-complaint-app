@@ -53,7 +53,7 @@ A full-stack platform for submitting and managing public complaints, featuring a
 3. **Seed the database:**
 
    ```bash
-   docker compose -f docker-compose.development.yml exec server npm run seed
+   docker compose -f docker-compose.development.yml exec server php artisan migrate:fresh --seed
    ```
 
 5. **Access URLs:**
@@ -74,7 +74,7 @@ To access the admin dashboard, use the following credentials:
 ## 🧪 Running Tests (Optional)
 
 ```bash
-docker compose -f docker-compose.development.yml exec server npm run test
+docker compose -f docker-compose.development.yml exec server php artisan test
 ```
 
 ---
