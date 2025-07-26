@@ -105,7 +105,7 @@ const Dashboard = () => {
                 className="flex justify-between gap-x-10 items-center py-1"
               >
                 <Link
-                  to={`/complaints/${complaint.id}`}
+                  to="/dashboard/complaints"
                   className="hover:underline text-blue-700 font-medium truncate w-full"
                 >
                   {complaint.subject}
@@ -117,7 +117,7 @@ const Dashboard = () => {
             )}
           />
           <RecentItemsCard
-            title="Recent complaints"
+            title="Recent responses"
             items={data?.data?.recentResponses}
             link="/dashboard/complaints"
             formatter={response => (
@@ -126,7 +126,7 @@ const Dashboard = () => {
                 className="flex justify-between gap-x-10 items-center py-1"
               >
                 <Link
-                  to={`/responses/${response.id}`}
+                  to="/dashboard/complaints"
                   className="hover:underline text-blue-700 font-medium truncate w-full"
                 >
                   {response.message}

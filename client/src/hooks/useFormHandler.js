@@ -70,7 +70,7 @@ const useFormHandler = ({
   const onSubmit = async data => {
     try {
       if (!isCreate) data = getChangedData(dirtyFields, form);
-
+      
       if (fileFieldname) {
         data = buildFormData({
           data,
