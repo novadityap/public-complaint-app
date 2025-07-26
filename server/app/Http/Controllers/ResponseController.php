@@ -72,8 +72,10 @@ class ResponseController extends Controller
 
     $fields = $request->validated();
 
-    $complaint->update(['status' => $fields['status'] ]);
-    unset($fields['status']);
+    if (isset($fields['status'])) {
+      $complaint->update(['status' => $fields['status'] ]);
+      unset($fields['status']);
+    };
     
     $fields['user_id'] = auth()->id();
     $response->update($fields);

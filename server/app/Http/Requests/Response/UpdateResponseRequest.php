@@ -23,7 +23,7 @@ class UpdateResponseRequest extends FormRequest
   {
     return [
       'message' => 'sometimes|required|string',
-      'status' => 'required|in:pending,in_progress,resolved',
+      'status' => 'sometimes|required|in:pending,in_progress,resolved',
     ];
   }
 }

@@ -61,7 +61,6 @@ describe('POST /api/auth/signup', function () {
     $user = getTestUser();
 
     expect($user)->not->toBeNull();
-    expect($user->is_verified)->toBeTrue();
   });
 });
 

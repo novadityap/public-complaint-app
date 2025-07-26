@@ -45,7 +45,6 @@ class AuthController extends Controller
       'email' => $fields['email'],
       'password' => $userPassword,
       'role_id' => $userRole->id,
-      'is_verified' => true,
       'verification_token' => Str::random(32),
       'verification_token_expires' => Carbon::now()->addHours(24),
     ]);
