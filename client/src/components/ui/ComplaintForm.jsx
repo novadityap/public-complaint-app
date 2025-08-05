@@ -1,3 +1,5 @@
+'use client';
+
 import { Button } from '@/components/shadcn/button';
 import { Input } from '@/components/shadcn/input';
 import useFormHandler from '@/hooks/useFormHandler';
@@ -30,6 +32,7 @@ import {
   useShowComplaintQuery,
 } from '@/services/complaintApi';
 import { Skeleton } from '@/components/shadcn/skeleton';
+import Image from 'next/image';
 
 const ComplaintSkeleton = ({isCreate}) => (
   <div className="space-y-4">
@@ -217,7 +220,9 @@ const ComplaintForm = ({ id, onSubmitComplete, onCancel, isCreate }) => {
                         <TbLoader className="animate-spin" />
                       </div>
                     ) : (
-                      <img
+                      <Image
+                        width={150}
+                        height={150}
                         src={src}
                         alt={`Preview ${index}`}
                         className="object-cover w-full h-full"
@@ -286,10 +291,12 @@ const ComplaintForm = ({ id, onSubmitComplete, onCancel, isCreate }) => {
                       key={index}
                       className="relative w-32 h-32 border rounded overflow-hidden"
                     >
-                      <img
+                      <Image
                         src={src}
                         alt={`Preview ${index}`}
                         className="object-cover w-full h-full"
+                        width={150}
+                        height={150}
                       />
                       <button
                         type="button"

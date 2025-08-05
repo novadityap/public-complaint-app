@@ -1,5 +1,5 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
-import axiosBaseQuery from '@/app/baseQuery';
+import axiosBaseQuery from '@/lib/baseQuery';
 
 const dashboardApi = createApi({
   reducerPath: 'dashboardApi',

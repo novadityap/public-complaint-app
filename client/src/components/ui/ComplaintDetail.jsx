@@ -1,3 +1,5 @@
+'use client';
+
 import { useSelector } from 'react-redux';
 import {
   useShowComplaintQuery,
@@ -51,6 +53,8 @@ import RemoveConfirmModal from '@/components/ui/RemoveConfirmModal';
 import CreateUpdateModal from '@/components/ui/CreateUpdateModal';
 import { toast } from 'react-hot-toast';
 import { useEffect, useMemo } from 'react';
+import Image from 'next/image';
+import { AspectRatio } from '@/components/shadcn/aspect-ratio';
 
 const ComplaintDetailSkeleton = () => (
   <div className="space-y-4 mt-4">
@@ -136,7 +140,7 @@ const ResponseList = ({ complaintId, responses }) => {
       <div className="space-y-4 mt-6">
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-semibold">Responses</h3>
-          {currentUser.role === 'admin' && (
+          {currentUser?.role === 'admin' && (
             <Button
               size="sm"
               onClick={() => handleOpenModal('create')}
@@ -175,7 +179,7 @@ const ResponseList = ({ complaintId, responses }) => {
                   </span>
                 </div>
 
-                {currentUser.role === 'admin' && (
+                {currentUser?.role === 'admin' && (
                   <div className="flex justify-end gap-3 pt-2">
                     <TbEdit
                       className="size-5 cursor-pointer text-orange-600"
@@ -387,7 +391,7 @@ const ComplaintDetail = ({ id }) => {
             )}
           </div>
         </div>
-        {currentUser.role === 'admin' && (
+        {currentUser?.role === 'admin' && (
           <div className="flex items-start gap-3 col-span-full">
             <TbUser className="text-primary mt-1 shrink-0 size-5" />
             <div>
@@ -402,12 +406,14 @@ const ComplaintDetail = ({ id }) => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {complaint.data?.images?.length > 0 &&
           complaint.data.images.map((image, index) => (
-            <img
-              key={index}
+            <AspectRatio key={index} ratio={4 / 3} className="rounded-md">
+              <Image
+              fill
               src={image}
               alt="Complaint image"
-              className="h-64 w-full object-cover rounded-md"
+              className="w-full object-cover rounded-md"
             />
+            </AspectRatio>
           ))}
       </div>
 

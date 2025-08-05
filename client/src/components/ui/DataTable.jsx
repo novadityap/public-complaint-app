@@ -1,3 +1,5 @@
+'use client';
+
 import {
   useReactTable,
   getCoreRowModel,
@@ -183,7 +185,7 @@ const DataTable = ({
               />
             )}
             {allowUpdate &&
-              (entityName !== 'complaint' || currentUser.role !== 'admin') && (
+              (entityName !== 'complaint' || currentUser?.role !== 'admin') && (
                 <TbEdit
                   className="size-5 cursor-pointer text-orange-600"
                   onClick={() => handleOpenModal('update', id)}
@@ -242,7 +244,7 @@ const DataTable = ({
           onChange={e => setSearchTerm(e.target.value)}
         />
         {allowCreate &&
-          (entityName !== 'complaint' || currentUser.role !== 'admin') && (
+          (entityName !== 'complaint' || currentUser?.role !== 'admin') && (
             <Button
               onClick={() => handleOpenModal('create')}
               className="flex items-center gap-2"

@@ -1,5 +1,5 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
-import axiosBaseQuery from '@/app/baseQuery.js';
+import axiosBaseQuery from '@/lib/baseQuery.js';
 
 const complaintApi = createApi({
   reducerPath: 'complaintApi',

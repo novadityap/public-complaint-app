@@ -12,8 +12,7 @@ A full-stack platform for submitting and managing public complaints, featuring a
 - **Authentication** — JSON Web Token (JWT) and Google OAuth 2.0
 
 ### Frontend
-- **React.js** — SPA architecture built with Vite
-- **React Router** — Client-side routing
+- **Next.js** — Fullstack React framework
 - **Redux Toolkit & RTK Query** — State and API management
 - **shadcn/ui** — Modern UI components built on top of Tailwind CSS
 
