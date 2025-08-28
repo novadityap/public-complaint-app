@@ -4,7 +4,7 @@ import DataTable from '@/components/ui/DataTable';
 import { createColumnHelper } from '@tanstack/react-table';
 import {
   useSearchComplaintsQuery,
-  useRemoveComplaintMutation
+  useRemoveComplaintMutation,
 } from '@/services/complaintApi.js';
 import ComplaintForm from '@/components/ui/ComplaintForm.jsx';
 import { Badge } from '@/components/shadcn/badge';
@@ -23,6 +23,7 @@ const Complaint = () => {
   const columnsHelper = createColumnHelper();
   const columns = [
     columnsHelper.accessor('user.email', {
+      id: 'user.email',
       header: 'Reporter',
       size: 150,
       cell: info => (
@@ -30,6 +31,7 @@ const Complaint = () => {
       ),
     }),
     columnsHelper.accessor('category.name', {
+      id: 'category.name',
       header: 'Category',
       size: 150,
       cell: info => (
@@ -37,6 +39,7 @@ const Complaint = () => {
       ),
     }),
     columnsHelper.accessor('subject', {
+      id: 'subject',
       header: 'Subject',
       size: 200,
       cell: info => (
@@ -44,22 +47,27 @@ const Complaint = () => {
       ),
     }),
     columnsHelper.accessor('description', {
+      id: 'description',
       header: 'Description',
       size: 200,
       cell: info => (
         <div className="whitespace-normal break-words">{info.getValue()}</div>
-      )
+      ),
     }),
     columnsHelper.accessor('status', {
+      id: 'status',
       header: 'Status',
       size: 100,
       cell: info => {
         const status = info.getValue();
-        if (status === 'pending') return <Badge variant="destructive">Pending</Badge>;
-        if (status === 'in_progress') return <Badge variant="default">In Progress</Badge>;
-        if (status === 'resolved') return <Badge variant="success">Resolved</Badge>;
+        if (status === 'pending')
+          return <Badge variant="destructive">Pending</Badge>;
+        if (status === 'in_progress')
+          return <Badge variant="default">In Progress</Badge>;
+        if (status === 'resolved')
+          return <Badge variant="success">Resolved</Badge>;
       },
-    })
+    }),
   ];
 
   return (

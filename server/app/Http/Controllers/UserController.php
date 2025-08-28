@@ -18,14 +18,17 @@ class UserController extends Controller
 {
   public function search(SearchUserRequest $request): JsonResponse
   {
-    $query = $request->validated();
-    $page = $query['page'] ?? 1;
-    $limit = $query['limit'] ?? 10;
-    $q = $query['q'] ?? null;
+    $page = $request->input('page');
+    $limit = $request->input('limit');
+    $q = $request->input('q');
+    $sortBy = $request->input('sortBy');
+    $sortOrder = $request->input('sortOrder');
 
-    $query = User::query()
+    $users = User::query()
+      ->select('users.*')
+      ->leftJoin('roles', 'roles.id', '=', 'users.role_id')
       ->with('role')
-      ->where('id', '!=', auth()->user()->id)
+      ->where('users.id', '!=', auth()->user()->id)
       ->when($q, function ($query) use ($q) {
         $query->where(function ($subQuery) use ($q) {
           $subQuery->where('username', 'ilike', "%{$q}%")
@@ -35,9 +38,14 @@ class UserController extends Controller
             });
         });
       })
-      ->orderBy('created_at', 'desc');
-
-    $users = $query->paginate($limit, ['*'], 'page', $page);
+      ->when($sortBy, function ($query) use ($sortBy, $sortOrder) {
+        if ($sortBy === 'role.name') {
+          $query->orderBy('roles.name', $sortOrder);
+        } else {
+          $query->orderBy("users.$sortBy", $sortOrder);
+        }
+      })
+      ->paginate($limit, ['*'], 'page', $page);
 
     if ($users->isEmpty()) {
       Log::info('No users found');
@@ -96,12 +104,12 @@ class UserController extends Controller
   public function update(UpdateUserRequest $request, User $user): JsonResponse
   {
     $fields = $request->validated();
-    
+
     if (isset($fields['password'])) {
       $fields['password'] = Hash::make($fields['password']);
     }
 
-   if ($request->hasFile('avatar')) {
+    if ($request->hasFile('avatar')) {
       $uploadedFile = cloudinary()->uploadApi()->upload($request->file('avatar')->getRealPath(), ['folder' => 'avatars']);
       $fields['avatar'] = $uploadedFile['secure_url'];
       $this->deleteAvatar($user->avatar);
@@ -124,7 +132,7 @@ class UserController extends Controller
     if (isset($fields['password'])) {
       $fields['password'] = Hash::make($fields['password']);
     }
-    
+
     if ($request->hasFile('avatar')) {
       $uploadedFile = cloudinary()->uploadApi()->upload($request->file('avatar')->getRealPath(), ['folder' => 'avatars']);
       $fields['avatar'] = $uploadedFile['secure_url'];
@@ -153,10 +161,11 @@ class UserController extends Controller
     ], 200);
   }
 
-  protected function deleteAvatar(string $avatarUrl): void {
+  protected function deleteAvatar(string $avatarUrl): void
+  {
     if (config('app.default_avatar_url') !== $avatarUrl) {
       cloudinary()->uploadApi()->destroy(CloudinaryHelper::extractPublicId($avatarUrl));
-      Log::info('Avatar deleted successfully'); 
+      Log::info('Avatar deleted successfully');
     }
   }
 }

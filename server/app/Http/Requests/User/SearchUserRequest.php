@@ -9,8 +9,11 @@ class SearchUserRequest extends FormRequest
   public function prepareForValidation()
   {
     $this->merge([
+      'q' => $this->input('q', null),
       'page' => (int) $this->input('page', 1),
       'limit' => (int) $this->input('limit', 10),
+      'sortBy' => $this->input('sortBy', 'created_at'),
+      'sortOrder' => $this->input('sortOrder', 'desc'),
     ]);
   }
 
@@ -33,6 +36,8 @@ class SearchUserRequest extends FormRequest
       'page' => 'sometimes|integer|min:1',
       'limit' => 'sometimes|integer|min:1|max:100',
       'q' => 'nullable|string',
+      'sortBy' => 'sometimes|string',
+      'sortOrder' => 'sometimes|string|in:asc,desc',
     ];
   }
 }

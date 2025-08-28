@@ -20,12 +20,16 @@ class ComplaintController extends Controller
   {
     $user = auth()->user();
     $isAdmin = $user->role->name === 'admin';
-    $query = $request->validated();
-    $page = $query['page'] ?? 1;
-    $limit = $query['limit'] ?? 10;
-    $q = $query['q'] ?? null;
+    $page = $request->input('page');
+    $limit = $request->input('limit');
+    $q = $request->input('q');
+    $sortBy = $request->input('sortBy');
+    $sortOrder = $request->input('sortOrder');
 
-    $query = Complaint::query()
+    $complaints = Complaint::query()
+      ->select('complaints.*')
+      ->leftJoin('categories', 'categories.id', '=', 'complaints.category_id')
+      ->leftJoin('users', 'users.id', '=', 'complaints.user_id')
       ->with(['category', 'user'])
       ->when(!$isAdmin, function ($query) use ($user) {
         $query->where('user_id', $user->id);
@@ -43,9 +47,16 @@ class ComplaintController extends Controller
             });
         });
       })
-      ->orderBy('created_at', 'desc');
-
-    $complaints = $query->paginate($limit, ['*'], 'page', $page);
+      ->when($sortBy, function ($query) use ($sortBy, $sortOrder) {
+        if ($sortBy === 'category.name') {
+          $query->orderBy('categories.name', $sortOrder);
+        } elseif ($sortBy === 'user.email') {
+          $query->orderBy('users.email', $sortOrder);
+        } else {
+          $query->orderBy("complaints.$sortBy", $sortOrder);
+        }
+      })
+      ->paginate($limit, ['*'], 'page', $page);
 
     if ($complaints->isEmpty()) {
       Log::info('No complaints found');
@@ -141,7 +152,8 @@ class ComplaintController extends Controller
     }
     Log::info('Complaint image deleted successfully');
 
-    if (!empty($newImageUrls)) $fields['images'] = $newImageUrls;
+    if (!empty($newImageUrls))
+      $fields['images'] = $newImageUrls;
 
     $complaint->update($fields);
     $complaint->load(['category', 'user']);

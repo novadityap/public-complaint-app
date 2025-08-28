@@ -16,12 +16,6 @@ class DashboardController extends Controller
 {
   public function stats(): JsonResponse
   {
-    $totalUsers = User::count();
-    $totalRoles = Role::count();
-    $totalCategories = Category::count();
-    $totalComplaints = Complaint::count();
-    $totalResponses = Response::count();
-
     $recentComplaints = Complaint::with(['user:id,email', 'category:id,name'])
       ->orderByDesc('created_at')
       ->take(5)
@@ -38,11 +32,11 @@ class DashboardController extends Controller
       'code' => 200,
       'message' => 'Statistics data retrieved successfully',
       'data' => [
-        'totalUsers' => $totalUsers,
-        'totalRoles' => $totalRoles,
-        'totalCategories' => $totalCategories,
-        'totalComplaints' => $totalComplaints,
-        'totalResponses' => $totalResponses,
+        'totalUsers' => User::count(),
+        'totalRoles' => Role::count(),
+        'totalCategories' => Category::count(),
+        'totalComplaints' => Complaint::count(),
+        'totalResponses' => Response::count(),
         'recentComplaints' =>  ComplaintResource::collection($recentComplaints),
         'recentResponses' => ResponseResource::collection($recentResponses),
       ],

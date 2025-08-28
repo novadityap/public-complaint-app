@@ -32,10 +32,11 @@ import {
 } from '@/services/userApi';
 import { useEffect } from 'react';
 import { Skeleton } from '@/components/shadcn/skeleton';
+import { toast } from 'react-hot-toast';
 
-const UserFormSkeleton = ({ isCreate }) => (
+const UserFormSkeleton = ({ isUpdate }) => (
   <div className="space-y-4">
-    {!isCreate && (
+    {isUpdate && (
       <div className="flex justify-center">
         <Skeleton className="h-32 w-32 rounded-full" />
       </div>
@@ -45,7 +46,7 @@ const UserFormSkeleton = ({ isCreate }) => (
     <Skeleton className="h-4 w-20" />
     <Skeleton className="h-10 w-full" />
     <Skeleton className="h-4 w-20" />
-    <Skeleton className="h-10 w-full" />  
+    <Skeleton className="h-10 w-full" />
     <Skeleton className="h-4 w-20" />
     <Skeleton className="h-10 w-full" />
     <div className="flex justify-end gap-2">
@@ -55,47 +56,49 @@ const UserFormSkeleton = ({ isCreate }) => (
   </div>
 );
 
-const UserForm = ({ id, onSubmitComplete, onCancel, isCreate }) => {
+const UserForm = ({ id, onSuccess, onClose, isUpdate }) => {
   const { data: user, isLoading: isUserLoading } = useShowUserQuery(id, {
-      skip: isCreate || !id
-    });
+    skip: !isUpdate || !id,
+  });
   const { data: roles, isLoading: isRolesLoading } = useListRolesQuery();
   const { form, handleSubmit, isLoading } = useFormHandler({
-    fileFieldname: 'avatar',
-    formType: 'datatable',
-    isCreate,
-    mutation: isCreate ? useCreateUserMutation : useUpdateUserMutation,
-    onSubmitComplete,
+    isUpdate,
+    mutation: isUpdate ? useUpdateUserMutation : useCreateUserMutation,
     defaultValues: {
       username: '',
       email: '',
       password: '',
       roleId: '',
     },
-    ...(!isCreate && { 
+    ...(isUpdate && {
       params: [{ name: 'userId', value: id }],
-      method: 'PATCH' 
+      file: { fieldName: 'avatar', isMultiple: false, method: 'PATCH' },
     }),
+    onSuccess: result => {
+      onSuccess();
+      toast.success(result.message);
+    },
+    onError: e => toast.error(e.message),
   });
 
   useEffect(() => {
-    if (!isCreate && user?.data && roles?.data?.length > 0) {
+    if (isUpdate && user?.data && roles?.data?.length > 0) {
       form.reset({
         username: user.data.username,
         email: user.data.email,
         roleId: user.data.roleId,
-        password: ''
+        password: '',
       });
     }
   }, [user, roles]);
 
   if (isUserLoading || isRolesLoading)
-    return <UserFormSkeleton isCreate={isCreate} />;
+    return <UserFormSkeleton isUpdate={isUpdate} />;
 
   return (
     <Form {...form}>
       <form className="space-y-4" onSubmit={handleSubmit}>
-        {!isCreate && (
+        {isUpdate && (
           <>
             <div className="flex justify-center">
               <Avatar className="size-32">
@@ -196,23 +199,19 @@ const UserForm = ({ id, onSubmitComplete, onCancel, isCreate }) => {
           )}
         />
         <div className="flex justify-end gap-x-2">
-          <Button
-            variant="secondary"
-            type="button"
-            onClick={onCancel}
-          >
+          <Button variant="secondary" type="button" onClick={onClose}>
             Cancel
           </Button>
           <Button type="submit" disabled={isLoading}>
             {isLoading ? (
               <>
                 <TbLoader className="animate-spin" />
-                {isCreate ? 'Creating..' : 'Updating..'}
+                {isUpdate ? 'Updating..' : 'Creating..'}
               </>
-            ) : isCreate ? (
-              'Create'
-            ) : (
+            ) : isUpdate ? (
               'Update'
+            ) : (
+              'Create'
             )}
           </Button>
         </div>

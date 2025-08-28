@@ -14,20 +14,20 @@ const CreateUpdateModal = ({
   isOpen,
   onClose,
   entityName,
-  isCreate,
+  isUpdate,
   FormComponent,
-  onSubmitComplete,
+  onSuccess,
 }) => (
   <Dialog open={isOpen} onOpenChange={onClose}>
     <DialogContent
       className={cn(
         'overflow-hidden p-0',
-        entityName === 'complaint' && !isCreate && 'md:max-w-4xl'
+        entityName === 'complaint' && isUpdate && 'md:max-w-4xl'
       )}
     >
       <DialogHeader className="px-6 pt-6">
         <DialogTitle>
-          {isCreate ? `Create ${entityName}` : `Update ${entityName}`}
+          {isUpdate ? `Update ${entityName}` : `Create ${entityName}`}
         </DialogTitle>
         <DialogDescription className="sr-only"></DialogDescription>
       </DialogHeader>
@@ -35,9 +35,9 @@ const CreateUpdateModal = ({
         {FormComponent && (
           <FormComponent
             id={id}
-            isCreate={isCreate}
-            onSubmitComplete={onSubmitComplete}
-            onCancel={onClose}
+            isUpdate={isUpdate}
+            onSuccess={onSuccess}
+            onClose={onClose}
           />
         )}
       </div>

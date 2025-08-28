@@ -24,35 +24,39 @@ import {
   AvatarFallback,
   AvatarImage,
 } from '@/components/shadcn/avatar';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useShowUserQuery, useUpdateProfileMutation } from '@/services/userApi';
 import useFormHandler from '@/hooks/useFormHandler';
 import { useEffect } from 'react';
 import { TbLoader } from 'react-icons/tb';
 import AuthGuard from '@/components/auth/AuthGuard';
+import { toast } from 'react-hot-toast';
+import { updateCurrentUser } from '@/lib/features/authSlice';
 
 const Profile = () => {
+  const dispatch = useDispatch();
   const currentUser = useSelector(state => state.auth.currentUser);
-  const { data: user, isLoading: isUserLoading, isFetching: isUserFetching } =
-    useShowUserQuery(currentUser?.id);
   const {
-    form,
-    handleSubmit,
-    isLoading,
-  } = useFormHandler({
-    fileFieldname: 'avatar',
-    method: 'PATCH',
-    isCreate: false,
-    page: 'profile',
+    data: user,
+    isLoading: isUserLoading,
+    isFetching: isUserFetching,
+  } = useShowUserQuery(currentUser?.id);
+  const { form, handleSubmit, isLoading } = useFormHandler({
+    file: { fieldName: 'avatar', isMultiple: false, method: 'PATCH' },
+    isUpdate: true,
     params: [{ name: 'userId', value: currentUser?.id }],
     mutation: useUpdateProfileMutation,
     defaultValues: {
       username: '',
       email: '',
       password: '',
-    }
+    },
+    onSuccess: result => {
+      toast.success(result.message);
+      dispatch(updateCurrentUser(result.data));
+    },
   });
-  
+
   useEffect(() => {
     if (user?.data) {
       form.reset({
@@ -61,7 +65,7 @@ const Profile = () => {
       });
     }
   }, [user]);
-  
+
   if (isUserLoading || isUserFetching) return <ProfileSkeleton />;
 
   return (
@@ -80,7 +84,9 @@ const Profile = () => {
                   <AvatarImage
                     src={user?.data.avatar}
                     fallback={
-                      <AvatarFallback>{currentUser?.username.charAt(0).toUpperCase()}</AvatarFallback>
+                      <AvatarFallback>
+                        {currentUser?.username.charAt(0).toUpperCase()}
+                      </AvatarFallback>
                     }
                   />
                 </Avatar>
@@ -203,4 +209,3 @@ const ProfileSkeleton = () => {
 };
 
 export default Profile;
-

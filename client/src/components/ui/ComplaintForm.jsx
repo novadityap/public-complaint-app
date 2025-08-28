@@ -34,9 +34,9 @@ import {
 import { Skeleton } from '@/components/shadcn/skeleton';
 import Image from 'next/image';
 
-const ComplaintSkeleton = ({isCreate}) => (
+const ComplaintSkeleton = ({ isUpdate }) => (
   <div className="space-y-4">
-    {!isCreate && (
+    {isUpdate && (
       <div className="flex justify-center">
         <Skeleton className="h-32 w-32 rounded-full" />
       </div>
@@ -56,10 +56,10 @@ const ComplaintSkeleton = ({isCreate}) => (
   </div>
 );
 
-const ComplaintForm = ({ id, onSubmitComplete, onCancel, isCreate }) => {
+const ComplaintForm = ({ id, onSuccess, onClose, isUpdate }) => {
   const { data: complaint, isLoading: isComplaintLoading } =
     useShowComplaintQuery(id, {
-      skip: isCreate || !id,
+      skip: !isUpdate || !id,
     });
   const { data: categories, isLoading: isCategoriesLoading } =
     useListCategoriesQuery();
@@ -73,28 +73,37 @@ const ComplaintForm = ({ id, onSubmitComplete, onCancel, isCreate }) => {
     handleSubmit: handleSubmitUpload,
     isLoading: isUploadLoading,
   } = useFormHandler({
-    isCreate: true,
-    fileFieldname: 'images',
-    isMultiple: true,
+    file: { fieldName: 'images', isMultiple: true },
     params: [{ name: 'complaintId', value: id }],
     mutation: useUploadComplaintImageMutation,
+    onSuccess: result => {
+      onSuccess();
+      toast.success(result.message);
+    },
+    onError: e => toast.error(e.message),
   });
   const { form, handleSubmit, isLoading } = useFormHandler({
-    isCreate,
-    fileFieldname: 'images',
-    isMultiple: true,
-    mutation: isCreate
-      ? useCreateComplaintMutation
-      : useUpdateComplaintMutation,
-    onSubmitComplete,
+    isUpdate,
+    mutation: isUpdate
+      ? useUpdateComplaintMutation
+      : useCreateComplaintMutation,
+    onSuccess: result => {
+      onSuccess();
+      toast.success(result.message);
+    },
+    onError: e => toast.error(e.message),
     defaultValues: {
       subject: '',
       description: '',
       categoryId: '',
     },
-    ...(!isCreate && {
+    file: {
+      fieldName: 'images',
+      isMultiple: true,
+      ...(isUpdate ? { method: 'PATCH' } : {}),
+    },
+    ...(isUpdate && {
       params: [{ name: 'complaintId', value: id }],
-      method: 'PATCH',
     }),
   });
 
@@ -156,7 +165,7 @@ const ComplaintForm = ({ id, onSubmitComplete, onCancel, isCreate }) => {
   };
 
   useEffect(() => {
-    if (isCreate) {
+    if (!isUpdate) {
       form.setValue('images', images);
     } else {
       formUpload.setValue('images', images);
@@ -164,7 +173,7 @@ const ComplaintForm = ({ id, onSubmitComplete, onCancel, isCreate }) => {
   }, [images]);
 
   useEffect(() => {
-    if (!isCreate && complaint?.data) {
+    if (isUpdate && complaint?.data) {
       setPreviewImages(complaint.data.images);
       form.reset({
         subject: complaint.data.subject,
@@ -180,10 +189,10 @@ const ComplaintForm = ({ id, onSubmitComplete, onCancel, isCreate }) => {
     <div
       className={cn(
         'flex flex-col md:flex-row gap-x-6 gap-y-12',
-        isCreate && 'sm:max-w-lg'
+        !isUpdate && 'sm:max-w-lg'
       )}
     >
-      {!isCreate && (
+      {isUpdate && (
         <Form {...formUpload}>
           <form
             className="flex flex-col space-y-4 flex-1"
@@ -243,10 +252,7 @@ const ComplaintForm = ({ id, onSubmitComplete, onCancel, isCreate }) => {
             )}
 
             <div className="flex justify-end">
-              <Button
-                type="submit"
-                disabled={isUploadLoading}
-              >
+              <Button type="submit" disabled={isUploadLoading}>
                 {isUploadLoading ? (
                   <>
                     <TbLoader className="animate-spin" />
@@ -263,7 +269,7 @@ const ComplaintForm = ({ id, onSubmitComplete, onCancel, isCreate }) => {
 
       <Form {...form}>
         <form className="space-y-4 flex-1" onSubmit={handleSubmit}>
-          {isCreate && (
+          {!isUpdate && (
             <>
               <FormField
                 control={form.control}
@@ -366,26 +372,19 @@ const ComplaintForm = ({ id, onSubmitComplete, onCancel, isCreate }) => {
             )}
           />
           <div className="flex justify-end gap-x-2">
-            <Button
-              variant="secondary"
-              type="button"
-              onClick={onCancel}
-            >
+            <Button variant="secondary" type="button" onClick={onClose}>
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={isLoading}
-            >
+            <Button type="submit" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <TbLoader className="animate-spin" />
-                  {isCreate ? 'Creating..' : 'Updating..'}
+                  {isUpdate ? 'Updating..' : 'Creating..'}
                 </>
-              ) : isCreate ? (
-                'Create'
-              ) : (
+              ) : isUpdate ? (
                 'Update'
+              ) : (
+                'Create'
               )}
             </Button>
           </div>

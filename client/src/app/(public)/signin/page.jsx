@@ -19,16 +19,18 @@ import {
   CardFooter,
 } from '@/components/shadcn/card';
 import { useSigninMutation } from '@/services/authApi';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { TbLoader, TbExclamationCircle, TbBrandGoogle } from 'react-icons/tb';
 import useFormHandler from '@/hooks/useFormHandler';
 import useGoogleSignin from '@/hooks/useGoogleSignin';
+import { setToken, setCurrentUser } from '@/lib/features/authSlice';
 
 const Signin = () => {
   const router = useRouter();
+  const dispatch = useDispatch();
   const handleGoogleSignin = useGoogleSignin();
   const { token, currentUser } = useSelector(state => state.auth);
   const { form, handleSubmit, isLoading, error, isSuccess, message } =
@@ -38,6 +40,10 @@ const Signin = () => {
       defaultValues: {
         email: '',
         password: '',
+      },
+      onSuccess: (result) => {
+        dispatch(setToken(result.data.token));
+        dispatch(setCurrentUser(result.data));
       },
     });
 

@@ -14,18 +14,18 @@ class CategoryController extends Controller
 {
   public function search(SearchCategoryRequest $request): JsonResponse
   {
-    $query = $request->validated();
-    $page = $query['page'] ?? 1;
-    $limit = $query['limit'] ?? 10;
-    $q = $query['q'] ?? null;
+    $page = $request->input('page');
+    $limit = $request->input('limit');
+    $q = $request->input('q');
+    $sortBy = $request->input('sortBy');
+    $sortOrder = $request->input('sortOrder');
 
-    $query = Category::query()
+    $categories = Category::query()
       ->when($q, function ($query) use ($q) {
         $query->where('name', 'ilike', "%{$q}%");
       })
-      ->orderBy('created_at', 'desc');
-
-    $categories = $query->paginate($limit, ['*'], 'page', $page);
+      ->orderBy($sortBy, $sortOrder)
+      ->paginate($limit, ['*'], 'page', $page);
 
     if ($categories->isEmpty()) {
       Log::info('No categories found');
@@ -79,8 +79,7 @@ class CategoryController extends Controller
 
   public function create(CreateCategoryRequest $request): JsonResponse
   {
-    $fields = $request->validated();
-    Category::create($fields);
+    Category::create($request->validated());
 
     Log::info('Category created successfully');
     return response()->json([
@@ -101,8 +100,7 @@ class CategoryController extends Controller
 
   public function update(UpdateCategoryRequest $request, Category $category): JsonResponse
   {
-    $fields = $request->validated();
-    $category->update($fields);
+    $category->update($request->validated());
 
     Log::info('Category updated successfully');
     return response()->json([

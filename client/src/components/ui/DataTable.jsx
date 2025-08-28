@@ -13,18 +13,20 @@ import {
   TableCell,
   TableBody,
 } from '@/components/shadcn/table';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { createColumnHelper } from '@tanstack/react-table';
-import { TbEdit, TbTrash, TbPlus, TbEye } from 'react-icons/tb';
-import { Input } from '@/components/shadcn/input';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/shadcn/dialog';
+  TbEdit,
+  TbTrash,
+  TbPlus,
+  TbEye,
+  TbArrowUp,
+  TbArrowDown,
+  TbArrowsSort,
+  TbMoodSad,
+} from 'react-icons/tb';
+import { Input } from '@/components/shadcn/input';
 import { Button } from '@/components/shadcn/button';
 import { Skeleton } from '@/components/shadcn/skeleton';
 import {
@@ -35,67 +37,11 @@ import {
   SelectValue,
 } from '@/components/shadcn/select';
 import dayjs from 'dayjs';
-import ReactPaginate from 'react-paginate';
-import { cn } from '@/lib/utils';
 import RemoveConfirmModal from '@/components/ui/RemoveConfirmModal';
 import { useSelector } from 'react-redux';
 import CreateUpdateModal from '@/components/ui/CreateUpdateModal';
-
-const Pagination = ({ pageCount, onPageChange, currentPage, forcePage }) => (
-  <ReactPaginate
-    forcePage={forcePage}
-    previousLabel={<span className="">Prev</span>}
-    nextLabel={<span className="">Next</span>}
-    breakLabel={'...'}
-    pageCount={pageCount}
-    marginPagesDisplayed={2}
-    pageRangeDisplayed={5}
-    onPageChange={onPageChange}
-    containerClassName={'flex items-center space-x-2'}
-    pageLinkClassName={
-      'px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-100 transition-colors'
-    }
-    activeLinkClassName={
-      'text-purple-600 border border-purple-600 bg-white rounded-md'
-    }
-    breakClassName={'px-3 py-2 text-gray-700'}
-    previousLinkClassName={cn(
-      'px-3 py-2 rounded-md transition-colors',
-      currentPage === 0
-        ? 'text-gray-300 bg-gray-100 cursor-not-allowed'
-        : 'text-gray-500 bg-gray-100 hover:bg-gray-200'
-    )}
-    nextLinkClassName={cn(
-      'px-3 py-2 rounded-md transition-colors',
-      currentPage === pageCount - 1
-        ? 'text-gray-300 bg-gray-100 cursor-not-allowed'
-        : 'text-gray-500 bg-gray-100 hover:bg-gray-200'
-    )}
-    disabledClassName={'pointer-events-none'}
-    ariaDisabledClassName={'text-gray-300'}
-    pageClassName={'flex items-center'}
-  />
-);
-
-const ViewDetailModal = ({
-  isOpen,
-  onClose,
-  DetailComponent,
-  id,
-  entityName,
-}) => (
-  <Dialog open={isOpen} onOpenChange={onClose}>
-    <DialogContent className="md:max-w-2xl overflow-hidden p-0">
-      <DialogHeader className="px-6 pt-6">
-        <DialogTitle>{`Detail ${entityName}`}</DialogTitle>
-        <DialogDescription className="sr-only"></DialogDescription>
-      </DialogHeader>
-      <div className="max-h-[80vh] overflow-y-auto p-6">
-        <DetailComponent id={id} onClose={onClose} />
-      </div>
-    </DialogContent>
-  </Dialog>
-);
+import Pagination from '@/components/ui/Pagination';
+import ViewDetailModal from '@/components/ui/ViewDetailModal';
 
 const PageSizeSelector = ({ value, onChange }) => (
   <div className="flex items-center gap-x-3 w-16 text-sm">
@@ -128,29 +74,37 @@ const DataTable = ({
   const { currentUser } = useSelector(state => state.auth);
   const columnsHelper = createColumnHelper();
   const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setcurrentPage] = useState(0);
+  const [currentPage, setcurrentPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [modalType, setModalType] = useState(null);
   const [selectedId, setSelectedId] = useState(null);
+  const [sorting, setSorting] = useState([]);
   const {
     data: items,
     isLoading: isItemsLoading,
     isFetching: isItemsFetching,
-  } = searchQuery({
-    page: searchTerm ? 1 : currentPage + 1,
-    limit,
-    q: searchTerm,
-  });
+  } = searchQuery(
+    {
+      page: searchTerm ? 1 : currentPage,
+      limit,
+      q: searchTerm,
+      sortBy: sorting[0]?.id,
+      sortOrder: sorting[0]?.desc ? 'desc' : 'asc',
+    },
+    {
+      refetchOnMountOrArgChange: true,
+    }
+  );
   const [removeMutate, { isLoading: isRemoveLoading }] = removeMutation();
-  const totalPages = Math.max(items?.meta?.totalPages || 0, 1);
   const mergedColumns = [
     columnsHelper.display({
       header: '#',
+      enableSorting: false,
       size: 30,
       cell: info =>
         searchTerm
           ? info.row.index + 1
-          : info.row.index + 1 + currentPage * items?.meta?.pageSize,
+          : info.row.index + 1 + (currentPage - 1) * items?.meta?.pageSize,
     }),
     ...columns,
     columnsHelper.accessor('createdAt', {
@@ -173,6 +127,7 @@ const DataTable = ({
     }),
     columnsHelper.display({
       header: 'Actions',
+      enableSorting: false,
       size: 100,
       cell: ({ row }) => {
         const id = row.original.id;
@@ -211,10 +166,6 @@ const DataTable = ({
     setSelectedId(null);
   };
 
-  const handleSubmitComplete = () => {
-    handleCloseModal();
-  };
-
   const handleRemoveConfirm = async () => {
     try {
       const result = await removeMutate(selectedId).unwrap();
@@ -231,8 +182,22 @@ const DataTable = ({
     getCoreRowModel: getCoreRowModel(),
     manualFiltering: true,
     manualPagination: true,
+    manualSorting: true,
+    pageCount: items?.meta?.totalPages || 0,
     rowCount: items?.meta?.totalItems || 0,
+    onSortingChange: setSorting,
+    state: {
+      sorting,
+    },
   });
+
+  useEffect(() => {
+    if (items?.meta) {
+      if (currentPage > items.meta.totalPages) {
+        setcurrentPage(items.meta.totalPages || 1);
+      }
+    }
+  }, [items, currentPage]);
 
   return (
     <>
@@ -255,26 +220,44 @@ const DataTable = ({
           )}
       </div>
 
-      <div className="overflow-auto border rounded-md">
-        <Table>
-          <TableHeader>
+      <div className="overflow-auto rounded-2xl border border-gray-200 shadow-sm">
+        <Table className="w-full text-sm">
+          <TableHeader className="bg-gray-50">
             {table.getHeaderGroups().map(headerGroup => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map(header => (
                   <TableHead
                     key={header.id}
-                    style={{
-                      width: header.column.columnDef.size,
-                      minWidth: header.column.columnDef.size,
-                      maxWidth: header.column.columnDef.size,
-                    }}
+                    onClick={
+                      header.column.getCanSort()
+                        ? header.column.getToggleSortingHandler()
+                        : undefined
+                    }
+                    className={`px-4 py-3 text-left font-medium text-gray-700 ${
+                      header.column.getCanSort()
+                        ? 'cursor-pointer select-none hover:text-gray-900 transition-colors'
+                        : ''
+                    }`}
                   >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
+                    {header.isPlaceholder ? null : (
+                      <div className="flex items-center gap-1">
+                        {flexRender(
                           header.column.columnDef.header,
                           header.getContext()
                         )}
+                        {header.column.getCanSort() && (
+                          <>
+                            {header.column.getIsSorted() === 'asc' ? (
+                              <TbArrowUp size={16} />
+                            ) : header.column.getIsSorted() === 'desc' ? (
+                              <TbArrowDown size={16} />
+                            ) : (
+                              <TbArrowsSort size={16} className="opacity-40" />
+                            )}
+                          </>
+                        )}
+                      </div>
+                    )}
                   </TableHead>
                 ))}
               </TableRow>
@@ -283,10 +266,10 @@ const DataTable = ({
           <TableBody>
             {isItemsLoading || isItemsFetching ? (
               Array.from({ length: 10 }).map((_, rowIndex) => (
-                <TableRow key={rowIndex}>
+                <TableRow key={rowIndex} className="animate-pulse">
                   {table.getVisibleFlatColumns().map((col, colIndex) => (
-                    <TableCell key={colIndex}>
-                      <Skeleton className="h-4 w-full" />
+                    <TableCell key={colIndex} className="px-4 py-2">
+                      <Skeleton className="h-4 w-full rounded-md" />
                     </TableCell>
                   ))}
                 </TableRow>
@@ -295,18 +278,28 @@ const DataTable = ({
               <TableRow>
                 <TableCell
                   colSpan={table.getVisibleFlatColumns().length}
-                  className="h-64 text-center border-0"
+                  className="h-64 text-center text-gray-500"
                 >
-                  No results.
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <TbMoodSad size={36} className="text-gray-400" />
+                    <p className="text-base font-medium">No results found</p>
+                    <p className="text-sm text-gray-400">
+                      Try adjusting your search or filter.
+                    </p>
+                  </div>
                 </TableCell>
               </TableRow>
             ) : (
               <>
                 {table.getRowModel().rows.map(row => (
-                  <TableRow key={row.id}>
+                  <TableRow
+                    key={row.id}
+                    className="hover:bg-gray-50 transition-colors"
+                  >
                     {row.getVisibleCells().map(cell => (
                       <TableCell
                         key={cell.id}
+                        className="px-4 py-3"
                         style={{
                           width: cell.column.columnDef.size,
                           minWidth: cell.column.columnDef.size,
@@ -326,7 +319,7 @@ const DataTable = ({
                 }).map((_, i) => (
                   <TableRow key={`empty-${i}`}>
                     {table.getVisibleFlatColumns().map((col, j) => (
-                      <TableCell key={j}>
+                      <TableCell key={j} className="px-4 py-3">
                         <div className="h-6" />
                       </TableCell>
                     ))}
@@ -348,10 +341,9 @@ const DataTable = ({
         />
 
         <Pagination
+          totalPages={items?.meta?.totalPages || 0}
+          onPageChange={setcurrentPage}
           currentPage={currentPage}
-          pageCount={totalPages}
-          onPageChange={page => setcurrentPage(page.selected)}
-          forcePage={currentPage}
         />
       </div>
 
@@ -359,10 +351,10 @@ const DataTable = ({
         id={selectedId}
         entityName={entityName}
         isOpen={modalType === 'create' || modalType === 'update'}
-        isCreate={modalType === 'create'}
+        isUpdate={modalType === 'update'}
         onClose={handleCloseModal}
         FormComponent={FormComponent}
-        onSubmitComplete={handleSubmitComplete}
+        onSuccess={handleCloseModal}
       />
 
       <RemoveConfirmModal
@@ -372,15 +364,13 @@ const DataTable = ({
         isLoading={isRemoveLoading}
       />
 
-      {modalType === 'view' && selectedId && (
-        <ViewDetailModal
-          entityName={entityName}
-          isOpen={true}
-          onClose={handleCloseModal}
-          DetailComponent={DetailComponent}
-          id={selectedId}
-        />
-      )}
+      <ViewDetailModal
+        entityName={entityName}
+        isOpen={modalType === 'view'}
+        onClose={handleCloseModal}
+        DetailComponent={DetailComponent}
+        id={selectedId}
+      />
     </>
   );
 };

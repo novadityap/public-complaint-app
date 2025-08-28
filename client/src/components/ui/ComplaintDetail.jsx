@@ -19,10 +19,7 @@ import {
   FormControl,
 } from '@/components/shadcn/form';
 import { Skeleton } from '@/components/shadcn/skeleton';
-import {
-  Card,
-  CardContent,
-} from '@/components/shadcn/card';
+import { Card, CardContent } from '@/components/shadcn/card';
 import { Separator } from '@/components/shadcn/separator';
 import {
   TbPlus,
@@ -202,9 +199,9 @@ const ResponseList = ({ complaintId, responses }) => {
         entityName="response"
         isOpen={modalType === 'create' || modalType === 'update'}
         onClose={handleCloseModal}
-        isCreate={modalType === 'create'}
+        isUpdate={modalType === 'update'}
         FormComponent={ResponseFormMemo}
-        onSubmitComplete={handleSubmitComplete}
+        onSuccess={handleCloseModal}
       />
 
       <RemoveConfirmModal
@@ -220,30 +217,34 @@ const ResponseList = ({ complaintId, responses }) => {
 const ResponseForm = ({
   complaintId,
   id: responseId,
-  isCreate,
-  onCancel,
-  onSubmitComplete,
+  isUpdate,
+  onClose,
+  onSuccess,
 }) => {
   const { data: response, isLoading: isResponseLoading } = useShowResponseQuery(
     { complaintId, responseId },
-    { skip: isCreate || !complaintId || !responseId }
+    { skip: !isUpdate || !complaintId || !responseId }
   );
   const { form, handleSubmit, isLoading } = useFormHandler({
-    isCreate,
-    mutation: isCreate ? useCreateResponseMutation : useUpdateResponseMutation,
-    onSubmitComplete,
+    isUpdate,
+    mutation: isUpdate ? useUpdateResponseMutation : useCreateResponseMutation,
+    onSuccess: result => {
+      onSuccess();
+      toast.success(result.message);
+    },
+    onError: e => toast.error(e.message),
     defaultValues: {
       message: '',
       status: '',
     },
     params: [
       { name: 'complaintId', value: complaintId },
-      ...(!isCreate ? [{ name: 'responseId', value: responseId }] : []),
+      ...(isUpdate ? [{ name: 'responseId', value: responseId }] : []),
     ],
   });
 
   useEffect(() => {
-    if (!isCreate && response?.data) {
+    if (isUpdate && response?.data) {
       form.reset({
         message: response.data.message,
         status: response.data.complaint.status,
@@ -297,26 +298,19 @@ const ResponseForm = ({
             )}
           />
           <div className="flex justify-end gap-x-2">
-            <Button
-              variant="secondary"
-              type="button"
-              onClick={onCancel}
-            >
+            <Button variant="secondary" type="button" onClick={onClose}>
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={isLoading}
-            >
+            <Button type="submit" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <TbLoader className="animate-spin" />
-                  {isCreate ? 'Creating..' : 'Updating..'}
+                  {isUpdate ? 'Updating..' : 'Creating..'}
                 </>
-              ) : isCreate ? (
-                'Create'
-              ) : (
+              ) : isUpdate ? (
                 'Update'
+              ) : (
+                'Create'
               )}
             </Button>
           </div>
@@ -342,7 +336,9 @@ const ComplaintDetail = ({ id }) => {
         <div className="flex items-start gap-3">
           <TbHeading className="size-5 text-primary mt-1 shrink-0" />
           <div>
-            <p className="text-sm font-semibold text-muted-foreground">Subject</p>
+            <p className="text-sm font-semibold text-muted-foreground">
+              Subject
+            </p>
             <p className="text-base break-all">{complaint?.data?.subject}</p>
           </div>
         </div>
@@ -408,11 +404,11 @@ const ComplaintDetail = ({ id }) => {
           complaint.data.images.map((image, index) => (
             <AspectRatio key={index} ratio={4 / 3} className="rounded-md">
               <Image
-              fill
-              src={image}
-              alt="Complaint image"
-              className="w-full object-cover rounded-md"
-            />
+                fill
+                src={image}
+                alt="Complaint image"
+                className="w-full object-cover rounded-md"
+              />
             </AspectRatio>
           ))}
       </div>

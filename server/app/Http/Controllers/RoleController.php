@@ -14,18 +14,18 @@ class RoleController extends Controller
 {
   public function search(SearchRoleRequest $request): JsonResponse
   {
-    $query = $request->validated();
-    $page = $query['page'] ?? 1;
-    $limit = $query['limit'] ?? 10;
-    $q = $query['q'] ?? null;
+    $page = $request->input('page');
+    $limit = $request->input('limit');
+    $q = $request->input('q');
+    $sortBy = $request->input('sortBy');
+    $sortOrder = $request->input('sortOrder');
 
-    $query = Role::query()
+    $roles = Role::query()
       ->when($q, function ($query) use ($q) {
         $query->where('name', 'ilike', "%{$q}%");
       })
-      ->orderBy('created_at', 'desc');
-
-    $roles = $query->paginate($limit, ['*'], 'page', $page);
+      ->orderBy($sortBy, $sortOrder)
+      ->paginate($limit, ['*'], 'page', $page);
 
     if ($roles->isEmpty()) {
       Log::info('No roles found');
@@ -58,8 +58,7 @@ class RoleController extends Controller
   
   public function create(CreateRoleRequest $request): JsonResponse
   {
-    $fields = $request->validated();
-    Role::create($fields);
+    Role::create($request->validated());
 
     Log::info('Role created successfully');
     return response()->json([
@@ -100,8 +99,7 @@ class RoleController extends Controller
 
   public function update(UpdateRoleRequest $request, Role $role): JsonResponse
   {
-    $fields = $request->validated();
-    $role->update($fields);
+    $role->update($request->validated());
 
     Log::info('Role updated successfully');
     return response()->json([

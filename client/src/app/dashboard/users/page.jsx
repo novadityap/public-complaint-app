@@ -27,6 +27,8 @@ const User = () => {
   const columnsHelper = createColumnHelper();
   const columns = [
     columnsHelper.accessor('avatar', {
+      id: 'avatar',
+      enableSorting: false,
       header: 'Avatar',
       size: 80,
       cell: info => (
@@ -39,25 +41,28 @@ const User = () => {
       ),
     }),
     columnsHelper.accessor('username', {
+      id: 'username',
       header: 'Username',
       size: 150,
     }),
     columnsHelper.accessor('email', {
+      id: 'email',
       header: 'Email',
       size: 200,
     }),
-    columnsHelper.accessor('role', {
+    columnsHelper.accessor('role.name', {
+      id: 'role.name',
       header: 'Role',
       size: 100,
       cell: info => {
         const role = info.getValue();
-        if (role.name === 'admin') {
+        if (role === 'admin') {
           return <Badge variant="destructive">Admin</Badge>;
         } else {
           return <Badge variant="default">User</Badge>;
         }
       },
-    })
+    }),
   ];
 
   return (
