@@ -85,15 +85,23 @@ Route::prefix('complaints')->middleware('auth:api')->group(function () {
   Route::controller(ResponseController::class)->group(function () {
     Route::middleware('authorize:admin')->group(function () {
       Route::post('/{complaint}/responses', 'create');
-      Route::patch('/{complaint}/responses/{response}', 'update');
-      Route::delete('/{complaint}/responses/{response}', 'delete');
     });
 
     Route::middleware('authorize:user,admin')->group(function () {
       Route::get('/{complaint}/responses', 'list')->middleware('can:listResponses,complaint');
-      Route::get('/{complaint}/responses/{response}', 'show')->middleware('can:showResponse,complaint');
     });
   });
+});
+
+Route::prefix('responses')->controller(ResponseController::class)->group(function () {
+  Route::middleware('authorize:admin')->group(function () {
+      Route::patch('/{response}', 'update');
+      Route::delete('/{response}', 'delete');
+    });
+
+    Route::middleware('authorize:user,admin')->group(function () {
+      Route::get('/{response}', 'show')->middleware('can:showResponse,response');
+    });
 });
 
 

@@ -31,9 +31,4 @@ class ComplaintPolicy
     {
       return $user->role->name === 'admin' || $user->id === $complaint->user_id;
     }
-
-    public function showResponse(User $user, Complaint $complaint): bool
-    {
-      return $user->role->name === 'admin' || $user->id === $complaint->user_id;
-    }
 }

@@ -34,11 +34,7 @@ class ResponseController extends Controller
     ], 200);
   }
 
-  public function show(Complaint $complaint, Response $response): JsonResponse {
-    if ($complaint->id !== $response->complaint_id) {
-      abort(404, 'Response not found for this complaint');
-    }
-
+  public function show(Response $response): JsonResponse {
     Log::info('Response retrieved successfully');
     return response()->json([
       'code' => 200,
@@ -64,16 +60,12 @@ class ResponseController extends Controller
     ], 201);
   }
 
-  public function update(UpdateResponseRequest $request, Complaint $complaint, Response $response): JsonResponse
+  public function update(UpdateResponseRequest $request, Response $response): JsonResponse
   {
-     if ($complaint->id !== $response->complaint_id) {
-      abort(404, 'Response not found for this complaint');
-    }
-
     $fields = $request->validated();
 
     if (isset($fields['status'])) {
-      $complaint->update(['status' => $fields['status'] ]);
+      $response->complaint->update(['status' => $fields['status'] ]);
       unset($fields['status']);
     };
     
@@ -88,12 +80,8 @@ class ResponseController extends Controller
     ], 200);
   }
 
-  public function delete(Complaint $complaint, Response $response): JsonResponse
+  public function delete(Response $response): JsonResponse
   {
-    if ($complaint->id !== $response->complaint_id) {
-      abort(404, 'Response not found for this complaint');
-    }
-
     $response->delete();
 
     Log::info('Response deleted successfully');

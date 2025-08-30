@@ -23,7 +23,7 @@ describe('GET /api/complaints/{complaint}/responses', function () {
   });
 });
 
-describe('GET /api/complaints/{complaint}/responses/{response}', function () {
+describe('GET /api/responses/{response}', function () {
   beforeEach(function () {
     createTestUser();
     createTestCategory();
@@ -40,7 +40,7 @@ describe('GET /api/complaints/{complaint}/responses/{response}', function () {
 
   it('should return an error if response is not found', function () {
     $complaint = getTestComplaint();
-    $result = $this->getJson("/api/complaints/{$complaint->id}/responses/" . test()->validUUID, [
+    $result = $this->getJson("/api/responses/" . test()->validUUID, [
       'Authorization' => 'Bearer ' . test()->accessToken,
     ]);
 
@@ -52,7 +52,7 @@ describe('GET /api/complaints/{complaint}/responses/{response}', function () {
     $complaint = getTestComplaint();
     $response = createTestResponse();
 
-    $result = $this->getJson("/api/complaints/{$complaint->id}/responses/{$response->id}", [
+    $result = $this->getJson("/api/responses/{$response->id}", [
       'Authorization' => 'Bearer ' . test()->accessToken,
     ]);
 
@@ -119,7 +119,7 @@ describe('POST /api/complaints/{complaint}/responses', function () {
   });
 });
 
-describe('PATCH /api/complaints/{complaint}/responses/{response}', function () {
+describe('PATCH /api/responses/{response}', function () {
   beforeEach(function () {
     createTestUser();
     createTestCategory();
@@ -137,7 +137,7 @@ describe('PATCH /api/complaints/{complaint}/responses/{response}', function () {
 
   it('should return an error if response is not found', function () {
     $complaint = getTestComplaint();
-    $result = $this->patchJson("/api/complaints/{$complaint->id}/responses/" . test()->validUUID, [], [
+    $result = $this->patchJson("/api/responses/" . test()->validUUID, [], [
       'Authorization' => 'Bearer ' . test()->accessToken,
     ]);
 
@@ -147,7 +147,7 @@ describe('PATCH /api/complaints/{complaint}/responses/{response}', function () {
 
   it('should update response if input data is valid', function () {
     $response = getTestResponse();
-    $result = $this->patchJson("/api/complaints/{$response->complaint_id}/responses/{$response->id}", [
+    $result = $this->patchJson("/api/responses/{$response->id}", [
       'message' => 'test1',
       'status' => 'pending'
     ], [
@@ -160,7 +160,7 @@ describe('PATCH /api/complaints/{complaint}/responses/{response}', function () {
   });
 });
 
-describe('DELETE /api/complaints/{complaint}/responses/{response}', function () {
+describe('DELETE /api/responses/{response}', function () {
   beforeEach(function () {
     createTestUser();
     createTestCategory();
@@ -178,7 +178,7 @@ describe('DELETE /api/complaints/{complaint}/responses/{response}', function () 
 
   it('should return an error if response is not found', function () {
     $complaint = getTestComplaint();
-    $result = $this->deleteJson("/api/complaints/{$complaint->id}/responses/" . test()->validUUID, [], [
+    $result = $this->deleteJson("/api/responses/" . test()->validUUID, [], [
       'Authorization' => 'Bearer ' . test()->accessToken,
     ]);
 
@@ -188,7 +188,7 @@ describe('DELETE /api/complaints/{complaint}/responses/{response}', function () 
 
   it('should delete response if response id is valid', function () {
     $response = getTestResponse();
-    $result = $this->deleteJson("/api/complaints/{$response->complaint_id}/responses/{$response->id}", [], [
+    $result = $this->deleteJson("/api/responses/{$response->id}", [], [
       'Authorization' => 'Bearer ' . test()->accessToken,
     ]);
 
