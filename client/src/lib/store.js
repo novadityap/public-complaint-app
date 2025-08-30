@@ -52,7 +52,7 @@ export const store = configureStore({
     userApi.middleware,
     categoryApi.middleware,
     complaintApi.middleware,
-    dashboardApi.middleware
+    dashboardApi.middleware,
   ),
 });
 

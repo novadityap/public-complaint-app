@@ -79,16 +79,6 @@ const complaintApi = createApi({
         { type: 'Complaint', id: complaintId },
       ],
     }),
-    showResponse: builder.query({
-      query: ({ complaintId, responseId }) => ({
-        url: `/complaints/${complaintId}/responses/${responseId}`,
-        method: 'GET',
-      }),
-      providesTags: (result, error, { complaintId, responseId }) => [
-        { type: 'Response', id: responseId },
-        { type: 'Complaint', id: complaintId }
-      ],
-    }),
     listResponses: builder.query({
       query: complaintId => ({
         url: `/complaints/${complaintId}/responses`,
@@ -113,24 +103,32 @@ const complaintApi = createApi({
         { type: 'Response', id: 'LIST' }
       ],
     }),
-    updateResponse: builder.mutation({
-      query: ({ data, complaintId, responseId }) => ({
-        url: `/complaints/${complaintId}/responses/${responseId}`,
-        method: 'PATCH',
-        data,
+    showResponse: builder.query({
+      query: responseId => ({
+        url: `/responses/${responseId}`,
+        method: 'GET',
       }),
-      invalidatesTags: (result, error, { complaintId, responseId }) => [
-        { type: 'Complaint', id: complaintId },
+      providesTags: (result, error, { responseId }) => [
         { type: 'Response', id: responseId },
       ],
     }),
+    updateResponse: builder.mutation({
+      query: ({ data, responseId }) => ({
+        url: `/responses/${responseId}`,
+        method: 'PATCH',
+        data,
+      }),
+      invalidatesTags: (result, error, { responseId }) => [
+        { type: 'Response', id: responseId },
+        { type: 'Complaint', id: result.data.complaintId }
+      ],
+    }),
     removeResponse: builder.mutation({
-      query: ({ complaintId, responseId }) => ({
-        url: `/complaints/${complaintId}/responses/${responseId}`,
+      query: responseId  => ({
+        url: `/responses/${responseId}`,
         method: 'DELETE',
       }),
-      invalidatesTags: (result, error, { complaintId, responseId }) => [
-        { type: 'Complaint', id: complaintId },
+      invalidatesTags: (result, error, { responseId }) => [
         { type: 'Response', id: responseId },
       ],
     }),
