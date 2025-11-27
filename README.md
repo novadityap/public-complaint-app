@@ -56,8 +56,8 @@ A full-stack platform for submitting and managing public complaints, featuring a
    ```
 
 5. **Access URLs:**
-   - Frontend: [http://localhost:5173](http://localhost:5173)
-   - Backend API: [http://localhost:3000/api](http://localhost:3000/api)
+   - Frontend: [http://localhost:3000](http://localhost:3000)
+   - Backend API: [http://localhost:8000/api](http://localhost:8000/api)
 
 ---
 
