@@ -25,11 +25,6 @@ const rootPersistConfig = {
   whitelist: ['auth'],
 }
 
-const authPersistConfig = {
-  key: 'auth',
-  storage,
-}
-
 const rootReducer = combineReducers({
   [authApi.reducerPath]: authApi.reducer,
   [roleApi.reducerPath]: roleApi.reducer,
@@ -37,7 +32,7 @@ const rootReducer = combineReducers({
   [categoryApi.reducerPath]: categoryApi.reducer,
   [complaintApi.reducerPath]: complaintApi.reducer,
   [dashboardApi.reducerPath]: dashboardApi.reducer,
-  auth: persistReducer(authPersistConfig, authReducer),
+  auth: authReducer,
 });
 
 export const store = configureStore({
