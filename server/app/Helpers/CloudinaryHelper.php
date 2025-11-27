@@ -6,17 +6,15 @@ class CloudinaryHelper
 {
   public static function extractPublicId(string $url): ?string
   {
-    if (strpos($url, 'cloudinary.com') === false) return null;
+    if (!str_contains($url, 'cloudinary.com')) {
+      return null;
+    }
 
-    $parts = explode('/', $url);
-    $uploadIndex = array_search('upload', $parts);
+    $path = parse_url($url, PHP_URL_PATH);
+    $clean = preg_replace('#^/[^/]+/[^/]+/upload/v\d+/#', '', $path);
+    $clean = ltrim($clean, '/');
+    $clean = explode('?', $clean)[0];
 
-    if ($uploadIndex === false || !isset($parts[$uploadIndex + 2])) return null;
-
-    $publicIdParts = array_slice($parts, $uploadIndex + 2);
-    $joined = implode('/', $publicIdParts);
-    $withoutExtension = preg_replace('/\.[^.\s]{3,4}$/', '', $joined);
-
-    return $withoutExtension;
+    return $clean ?: null;
   }
 }

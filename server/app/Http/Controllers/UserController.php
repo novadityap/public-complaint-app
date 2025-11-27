@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\User\ProfileRequest;
 use App\Http\Requests\User\CreateUserRequest;
 use App\Http\Requests\User\SearchUserRequest;
@@ -110,8 +111,8 @@ class UserController extends Controller
     }
 
     if ($request->hasFile('avatar')) {
-      $uploadedFile = cloudinary()->uploadApi()->upload($request->file('avatar')->getRealPath(), ['folder' => 'avatars']);
-      $fields['avatar'] = $uploadedFile['secure_url'];
+      $publicId = Storage::putFile('avatars', $request->file('avatar'));
+      $fields['avatar'] = Storage::url($publicId);
       $this->deleteAvatar($user->avatar);
     }
 
@@ -134,8 +135,8 @@ class UserController extends Controller
     }
 
     if ($request->hasFile('avatar')) {
-      $uploadedFile = cloudinary()->uploadApi()->upload($request->file('avatar')->getRealPath(), ['folder' => 'avatars']);
-      $fields['avatar'] = $uploadedFile['secure_url'];
+      $publicId = Storage::putFile('avatars', $request->file('avatar'));
+      $fields['avatar'] = Storage::url($publicId);
       $this->deleteAvatar($user->avatar);
     }
 
@@ -164,7 +165,7 @@ class UserController extends Controller
   protected function deleteAvatar(string $avatarUrl): void
   {
     if (config('app.default_avatar_url') !== $avatarUrl) {
-      cloudinary()->uploadApi()->destroy(CloudinaryHelper::extractPublicId($avatarUrl));
+      Storage::delete(CloudinaryHelper::extractPublicId($avatarUrl));
       Log::info('Avatar deleted successfully');
     }
   }

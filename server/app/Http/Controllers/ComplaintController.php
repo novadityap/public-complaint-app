@@ -6,6 +6,7 @@ use App\Models\Complaint;
 use App\Helpers\CloudinaryHelper;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\ComplaintResource;
 use Illuminate\Validation\ValidationException;
 use App\Http\Requests\Complaint\CreateComplaintRequest;
@@ -94,8 +95,8 @@ class ComplaintController extends Controller
 
     if ($request->hasFile('images')) {
       foreach ($request->file('images') as $image) {
-        $uploadedFile = cloudinary()->uploadApi()->upload($image->getRealPath(), ['folder' => 'complaints']);
-        $imageUrls[] = $uploadedFile['secure_url'];
+        $publicId = Storage::putFile('complaints', $image);
+        $imageUrls[] = Storage::url($publicId);
       }
     }
 
@@ -138,8 +139,8 @@ class ComplaintController extends Controller
 
     if ($newImages) {
       foreach ($newImages as $image) {
-        $uploadedFile = cloudinary()->uploadApi()->upload($image->getRealPath(), ['folder' => 'complaints']);
-        $newImageUrls[] = $uploadedFile['secure_url'];
+        $publicId = Storage::putFile('complaints', $image);
+        $newImageUrls[] = Storage::url($publicId);
       }
     }
 
@@ -148,7 +149,7 @@ class ComplaintController extends Controller
     });
 
     foreach ($imagesToDelete as $image) {
-      cloudinary()->uploadApi()->destroy(CloudinaryHelper::extractPublicId($image));
+      Storage::delete(CloudinaryHelper::extractPublicId($image));
     }
     Log::info('Complaint image deleted successfully');
 
@@ -169,7 +170,7 @@ class ComplaintController extends Controller
   public function delete(Complaint $complaint): JsonResponse
   {
     foreach ($complaint->images ?? [] as $image) {
-      cloudinary()->uploadApi()->destroy(CloudinaryHelper::extractPublicId($image));
+      Storage::delete(CloudinaryHelper::extractPublicId($image));
     }
     Log::info('Complaint image deleted successfully');
 
@@ -196,8 +197,8 @@ class ComplaintController extends Controller
 
     if ($newImages) {
       foreach ($newImages as $image) {
-        $uploadedFile = cloudinary()->uploadApi()->upload($image->getRealPath(), ['folder' => 'complaints']);
-        $newImageUrls[] = $uploadedFile['secure_url'];
+        $publicId = Storage::putFile('complaints', $image);
+        $newImageUrls[] = Storage::url($publicId);
       }
     }
 
@@ -220,7 +221,7 @@ class ComplaintController extends Controller
     if (!in_array($fields['image'], $complaint->images))
       abort(404, 'Complaint image not found');
 
-    cloudinary()->uploadApi()->destroy(CloudinaryHelper::extractPublicId($fields['image']));
+    Storage::delete(CloudinaryHelper::extractPublicId($fields['image']));
     Log::info('Complaint image deleted successfully');
 
     $newImages = array_filter($complaint->images, fn($image) => $image !== $fields['image']);
