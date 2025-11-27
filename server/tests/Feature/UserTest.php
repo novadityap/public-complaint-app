@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 describe('GET /api/users/search', function () {
   beforeEach(function () {
@@ -600,13 +601,8 @@ describe('DELETE /api/users/{userId}', function () {
 
   it('should delete user with removing avatar', function () {
     $user = getTestUser();
-    $uploadResult = cloudinary()->uploadApi()->upload(
-      test()->testAvatarPath,
-      [
-        'folder' => 'avatars'
-      ]
-    );
-    $updatedUser = updateTestUser(['avatar' => $uploadResult['secure_url']]);
+    $publicId = Storage::putFile('avatars', test()->testAvatarPath);
+    $updatedUser = updateTestUser(['avatar' => Storage::url($publicId)]);
 
     $result = $this->deleteJson("/api/users/{$user->id}", [], [
       'Authorization' => "Bearer " . test()->accessToken,

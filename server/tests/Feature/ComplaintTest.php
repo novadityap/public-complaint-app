@@ -349,13 +349,8 @@ describe('DELETE /api/complaints/{complaintId}', function () {
   });
 
   it('should delete complaint with removing image', function () {
-    $uploadResult = cloudinary()->uploadApi()->upload(
-      test()->testComplaintImagePath,
-      [
-        'folder' => 'complaints',
-      ]
-    );
-    $updatedComplaint = updateTestComplaint(['images' => [$uploadResult['secure_url']]]);
+    $publicId = Storage::putFile('complaints', test()->testComplaintImagePath);
+    $updatedComplaint = updateTestComplaint(['images' => [Storage::url($publicId)]]);
 
     $result = $this->deleteJson("/api/complaints/{$updatedComplaint->id}", [], [
       'Authorization' => "Bearer " . test()->accessToken,
@@ -429,14 +424,10 @@ describe('DELETE /api/complaints/{complaintId}/images', function () {
       'role_id' => $role->id,
     ]);
 
-    $uploadResult = cloudinary()->uploadApi()->upload(
-      test()->testComplaintImagePath,
-      ['folder' => 'complaints']
-    );
-
+    $publicId = Storage::putFile('complaints', test()->testComplaintImagePath);
     $updatedComplaint = updateTestComplaint([
       'user_id' => $otherUser->id,
-      'images' => [$uploadResult['secure_url']],
+      'images' => [Storage::url($publicId)],
     ]);
 
     createAccessToken();
@@ -465,12 +456,8 @@ describe('DELETE /api/complaints/{complaintId}/images', function () {
   });
 
   it('should delete complaint images', function () {
-    $uploadResult = cloudinary()->uploadApi()->upload(
-      test()->testComplaintImagePath,
-      ['folder' => 'complaints']
-    );
-
-    $updatedComplaint = updateTestComplaint(['images' => [$uploadResult['secure_url']]]);
+    $publicId = Storage::putFile('complaints', test()->testComplaintImagePath);
+    $updatedComplaint = updateTestComplaint(['images' => [Storage::url($publicId)]]);
 
     $result = $this->deleteJson(
       "/api/complaints/{$updatedComplaint->id}/images",

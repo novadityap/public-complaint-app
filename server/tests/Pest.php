@@ -295,10 +295,18 @@ function checkFileExists(string|array $url): bool
   try {
     $urls = is_array($url) ? $url : [$url];
 
-    foreach ($urls as $item) {
-      cloudinary()->adminApi()->asset(CloudinaryHelper::extractPublicId($item));
+    foreach ($urls as $url) {
+      $publicId = CloudinaryHelper::extractPublicId($url);
+
+      if (!$publicId)
+        return false;
+
+      if (!Storage::exists($publicId))
+        return false;
     }
+
     return true;
+
   } catch (\Exception $e) {
     return false;
   }
@@ -308,7 +316,7 @@ function removeTestFile(string|array $url): void
 {
   $urls = is_array($url) ? $url : [$url];
 
-  foreach ($urls as $item) {
-    cloudinary()->uploadApi()->destroy(CloudinaryHelper::extractPublicId($item));
+  foreach ($urls as $url) {
+    Storage::delete(CloudinaryHelper::extractPublicId($url));
   }
 }
