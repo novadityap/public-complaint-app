@@ -13,14 +13,11 @@ pipeline {
       steps {
         withCredentials([
           file(credentialsId: 'public-complaint-app-client-dev-env', variable: 'CLIENT_DEV_ENV'),
-          file(credentialsId: 'public-complaint-app-client-prod-env', variable: 'CLIENT_PROD_ENV'),
           file(credentialsId: 'public-complaint-app-server-dev-env', variable: 'SERVER_DEV_ENV'),
         ]) {
           sh '''
             cp "$CLIENT_DEV_ENV" client/.env.development
-            cp "$CLIENT_PROD_ENV" client/.env.production
-            cp "$SERVER_DEV_ENV" server/.env.development
-            cp server/.env.development server/.env
+            cp "$SERVER_DEV_ENV" server/.env
           '''
         }
       }
