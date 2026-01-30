@@ -1,14 +1,53 @@
-node_modules
+# =========================
+# Environment & Secrets
+# =========================
 .env
-.env.development
-.env.production
-.env.local
-.env.development.local
-.env.production.local
-.env.test.local
+.env.*
 
+# =========================
+# Dependency (Host-only)
+# =========================
+node_modules
+vendor
+
+# =========================
+# Logs & Coverage
+# =========================
+*.log
 logs
 coverage
+
+# =========================
+# Build Artifacts
+# =========================
 dist
 build
+public/build
+public/hot
 
+# =========================
+# Cache & Runtime
+# =========================
+storage/logs
+storage/framework/cache
+storage/framework/sessions
+storage/framework/views
+bootstrap/cache
+
+# =========================
+# VCS & Editor
+# =========================
+.git
+.gitignore
+
+.idea
+.vscode
+.fleet
+.zed
+.nova
+
+# =========================
+# OS
+# =========================
+.DS_Store
+Thumbs.db

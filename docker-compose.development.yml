@@ -4,7 +4,8 @@ services:
     container_name: public-complaint-app-server-dev
     build:
       context: ./server
-      dockerfile: Dockerfile.development
+      dockerfile: Dockerfile
+    command: php artisan serve --host=0.0.0.0
     env_file:
       - ./server/.env
     ports:
@@ -13,7 +14,7 @@ services:
       - postgres
     restart: always
     volumes:
-      - ./server:/var/www/html
+      - ./server:/app
     networks:
       - public-complaint-app-dev
 
@@ -22,7 +23,8 @@ services:
     container_name: public-complaint-app-client-dev
     build:
       context: ./client
-      dockerfile: Dockerfile.development
+      dockerfile: Dockerfile
+    command: npm run dev
     env_file:
       - ./client/.env.development
     ports:
@@ -41,8 +43,9 @@ services:
     volumes:
       - public-complaint-postgres-data:/var/lib/postgresql/data
     environment:
-      POSTGRES_PASSWORD: aditya123
-      POSTGRES_DB: public_complaint_app
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: public_complaint_app_dev
     networks:
       - public-complaint-app-dev
 

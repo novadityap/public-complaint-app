@@ -1,27 +1,63 @@
-*.log
+# =========================
+# OS & Editor
+# =========================
 .DS_Store
-.env
-.env.backup
-.env.development
-.env.production
-.phpactor.json
-.phpunit.result.cache
-/.fleet
+Thumbs.db
+
 /.idea
-/.nova
-/.phpunit.cache
 /.vscode
+/.fleet
 /.zed
+/.nova
+
+# =========================
+# Environment & Secrets
+# =========================
+.env
+.env.*
+!.env.example
+
 /auth.json
-/node_modules
+
+# =========================
+# Logs & Cache
+# =========================
+*.log
+npm-debug.log*
+yarn-error.log*
+
+.phpunit.result.cache
+/.phpunit.cache
+/.phpactor.json
+
+# =========================
+# Laravel Runtime
+# =========================
+/vendor/
+/node_modules/
+
 /public/build
 /public/hot
 /public/storage
+
 /storage/*.key
 /storage/pail
-/vendor
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+!/storage/framework/.gitignore
+
+/bootstrap/cache/*
+!/bootstrap/cache/.gitignore
+
+# =========================
+# Docker
+# =========================
+docker-compose.override.yml
+*.pid
+
+# =========================
+# Homestead (Legacy)
+# =========================
 Homestead.json
 Homestead.yaml
-npm-debug.log
-Thumbs.db
-yarn-error.log
