@@ -42,7 +42,7 @@ const Profile = () => {
     isFetching: isUserFetching,
   } = useShowUserQuery(currentUser?.id);
   const { form, handleSubmit, isLoading } = useFormHandler({
-    file: { fieldName: 'avatar', isMultiple: false, method: 'PATCH' },
+    file: { fieldName: 'avatar', isMultiple: false, method: 'PUT' },
     isUpdate: true,
     params: [{ name: 'userId', value: currentUser?.id }],
     mutation: useUpdateProfileMutation,

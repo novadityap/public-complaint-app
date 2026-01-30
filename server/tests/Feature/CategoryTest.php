@@ -154,7 +154,7 @@ describe('POST /api/categories', function () {
   });
 });
 
-describe('PATCH /api/categories/{category}', function () {
+describe('PUT /api/categories/{category}', function () {
   beforeEach(function () {
     createTestUser();
     createAccessToken();
@@ -173,7 +173,7 @@ describe('PATCH /api/categories/{category}', function () {
 
     $category = getTestCategory();
 
-    $result = $this->patchJson("/api/categories/{$category->id}", [], [
+    $result = $this->putJson("/api/categories/{$category->id}", [], [
       'Authorization' => 'Bearer ' . test()->accessToken,
     ]);
 
@@ -185,7 +185,7 @@ describe('PATCH /api/categories/{category}', function () {
     createTestCategory(['name' => 'test1']);
 
     $category = getTestCategory();
-    $result = $this->patchJson("/api/categories/{$category->id}", [
+    $result = $this->putJson("/api/categories/{$category->id}", [
       'name' => 'test1',
     ], [
       'Authorization' => 'Bearer ' . test()->accessToken,
@@ -197,7 +197,7 @@ describe('PATCH /api/categories/{category}', function () {
   });
 
   it('should return an error if category is not found', function () {
-    $result = $this->patchJson('/api/categories/' . test()->validUUID, [], [
+    $result = $this->putJson('/api/categories/' . test()->validUUID, [], [
       'Authorization' => 'Bearer ' . test()->accessToken,
     ]);
 
@@ -207,7 +207,7 @@ describe('PATCH /api/categories/{category}', function () {
 
   it('should update category if input data is valid', function () {
     $category = getTestCategory();
-    $result = $this->patchJson("/api/categories/{$category->id}", [
+    $result = $this->putJson("/api/categories/{$category->id}", [
       'name' => 'test1',
     ], [
       'Authorization' => 'Bearer ' . test()->accessToken,

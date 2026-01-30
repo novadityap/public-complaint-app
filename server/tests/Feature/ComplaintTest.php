@@ -182,7 +182,7 @@ describe('POST /api/complaints', function () {
   });
 });
 
-describe('PATCH /api/complaints/{complaintId}', function () {
+describe('PUT /api/complaints/{complaintId}', function () {
   beforeEach(function () {
     createTestCategory();
     createTestUser();
@@ -207,7 +207,7 @@ describe('PATCH /api/complaints/{complaintId}', function () {
 
     $complaint = createTestComplaint(['user_id' => $otherUser->id]);
 
-    $result = $this->patch("/api/complaints/{$complaint->id}", [], [
+    $result = $this->put("/api/complaints/{$complaint->id}", [], [
       'Authorization' => "Bearer {$this->accessToken}",
     ]);
 
@@ -216,7 +216,7 @@ describe('PATCH /api/complaints/{complaintId}', function () {
   });
 
   it('should return an error if complaint is not found', function () {
-    $result = $this->patch("/api/complaints/{$this->validUUID}", [], [
+    $result = $this->put("/api/complaints/{$this->validUUID}", [], [
       'Authorization' => "Bearer {$this->accessToken}",
     ]);
 
@@ -230,7 +230,7 @@ describe('PATCH /api/complaints/{complaintId}', function () {
 
     $complaint = createTestComplaint();
 
-    $result = $this->patch("/api/complaints/{$complaint->id}", [
+    $result = $this->put("/api/complaints/{$complaint->id}", [
       'subject' => '',
       'description' => '',
       'categoryId' => '',
@@ -252,7 +252,7 @@ describe('PATCH /api/complaints/{complaintId}', function () {
 
     $complaint = createTestComplaint();
 
-    $result = $this->patch("/api/complaints/{$complaint->id}", [
+    $result = $this->put("/api/complaints/{$complaint->id}", [
       'subject' => 'test',
       'description' => 'test',
       'categoryId' => 'invalid-id',
@@ -274,7 +274,7 @@ describe('PATCH /api/complaints/{complaintId}', function () {
     $complaint = createTestComplaint();
 
     $result = $this
-      ->patch("/api/complaints/{$complaint->id}", [
+      ->put("/api/complaints/{$complaint->id}", [
         'subject' => 'test1',
         'description' => 'test1',
         'categoryId' => $category->id,

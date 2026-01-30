@@ -115,7 +115,7 @@ const complaintApi = createApi({
     updateResponse: builder.mutation({
       query: ({ data, responseId }) => ({
         url: `/responses/${responseId}`,
-        method: 'PATCH',
+        method: 'PUT',
         data,
       }),
       invalidatesTags: (result, error, { responseId }) => [

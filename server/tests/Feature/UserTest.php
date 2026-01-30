@@ -238,7 +238,7 @@ describe('POST /api/users', function () {
   });
 });
 
-describe('PATCH /api/users/:userId/profile', function () {
+describe('PUT /api/users/:userId/profile', function () {
   beforeEach(function () {
     createTestUser();
     createAccessToken();
@@ -259,7 +259,7 @@ describe('PATCH /api/users/:userId/profile', function () {
     updateTestUser(['role_id' => $role->id]);
     createAccessToken();
 
-    $result = $this->patchJson("/api/users/{$otherUser->id}/profile", [], [
+    $result = $this->putJson("/api/users/{$otherUser->id}/profile", [], [
       'Authorization' => "Bearer " . test()->accessToken,
     ]);
 
@@ -268,7 +268,7 @@ describe('PATCH /api/users/:userId/profile', function () {
   });
 
   it('should return an error if user is not found', function () {
-    $result = $this->patchJson("/api/users/" . test()->validUUID . "/profile", [], [
+    $result = $this->putJson("/api/users/" . test()->validUUID . "/profile", [], [
       'Authorization' => "Bearer " . test()->accessToken,
     ]);
 
@@ -279,7 +279,7 @@ describe('PATCH /api/users/:userId/profile', function () {
   it('should return an error if input data is invalid', function () {
     $user = getTestUser();
 
-    $result = $this->patch("/api/users/{$user->id}/profile", [
+    $result = $this->put("/api/users/{$user->id}/profile", [
       'email' => '',
       'username' => '',
     ], [
@@ -301,7 +301,7 @@ describe('PATCH /api/users/:userId/profile', function () {
 
     $user = getTestUser();
 
-    $result = $this->patch("/api/users/{$user->id}/profile", [
+    $result = $this->put("/api/users/{$user->id}/profile", [
       'email' => 'test1@me.com',
     ], [
       'Authorization' => "Bearer " . test()->accessToken,
@@ -321,7 +321,7 @@ describe('PATCH /api/users/:userId/profile', function () {
 
     $user = getTestUser();
 
-    $result = $this->patch("/api/users/{$user->id}/profile", [
+    $result = $this->put("/api/users/{$user->id}/profile", [
       'username' => 'test1',
     ], [
       'Authorization' => "Bearer " . test()->accessToken,
@@ -336,7 +336,7 @@ describe('PATCH /api/users/:userId/profile', function () {
   it('should update profile without changing avatar', function () {
     $user = getTestUser();
 
-    $result = $this->patch("/api/users/{$user->id}/profile", [
+    $result = $this->put("/api/users/{$user->id}/profile", [
       'username' => 'test1',
       'email' => 'test1@me.com',
     ], [
@@ -353,7 +353,7 @@ describe('PATCH /api/users/:userId/profile', function () {
   it('should update profile with changing avatar', function () {
     $user = getTestUser();
 
-    $result = $this->patch("/api/users/{$user->id}/profile", [
+    $result = $this->put("/api/users/{$user->id}/profile", [
       'username' => 'test1',
       'email' => 'test1@me.com',
       'avatar' => new UploadedFile(
@@ -380,7 +380,7 @@ describe('PATCH /api/users/:userId/profile', function () {
   });
 });
 
-describe('PATCH /api/users/{userId}', function () {
+describe('PUT /api/users/{userId}', function () {
   beforeEach(function () {
     createTestUser();
     createAccessToken();
@@ -401,7 +401,7 @@ describe('PATCH /api/users/{userId}', function () {
     updateTestUser(['role_id' => $role->id]);
     createAccessToken();
 
-    $result = $this->patch("/api/users/{$otherUser->id}", [], [
+    $result = $this->put("/api/users/{$otherUser->id}", [], [
       'Authorization' => "Bearer {$this->accessToken}",
     ]);
 
@@ -410,7 +410,7 @@ describe('PATCH /api/users/{userId}', function () {
   });
 
   it('should return an error if user is not found', function () {
-    $result = $this->patch("/api/users/{$this->validUUID}", [], [
+    $result = $this->put("/api/users/{$this->validUUID}", [], [
       'Authorization' => "Bearer {$this->accessToken}",
     ]);
 
@@ -421,7 +421,7 @@ describe('PATCH /api/users/{userId}', function () {
   it('should return an error if input data is invalid', function () {
     $user = getTestUser();
 
-    $result = $this->patch("/api/users/{$user->id}", [
+    $result = $this->put("/api/users/{$user->id}", [
       'email' => '',
       'username' => '',
     ], [
@@ -438,7 +438,7 @@ describe('PATCH /api/users/{userId}', function () {
   it('should return an error if role is invalid', function () {
     $user = getTestUser();
 
-    $result = $this->patch("/api/users/{$user->id}", [
+    $result = $this->put("/api/users/{$user->id}", [
       'email' => 'test1@me.com',
       'username' => 'test1',
       'roleId' => 'invalid-id',
@@ -461,7 +461,7 @@ describe('PATCH /api/users/{userId}', function () {
     $role = getTestRole('admin');
     $user = getTestUser();
 
-    $result = $this->patch("/api/users/{$user->id}", [
+    $result = $this->put("/api/users/{$user->id}", [
       'email' => 'test1@me.com',
       'roleId' => $role->id,
     ], [
@@ -483,7 +483,7 @@ describe('PATCH /api/users/{userId}', function () {
     $role = getTestRole('admin');
     $user = getTestUser();
 
-    $result = $this->patch("/api/users/{$user->id}", [
+    $result = $this->put("/api/users/{$user->id}", [
       'username' => 'test1',
       'email' => 'test1@me.com',
       'roleId' => $role->id,
@@ -501,7 +501,7 @@ describe('PATCH /api/users/{userId}', function () {
     $role = getTestRole('admin');
     $user = getTestUser();
 
-    $result = $this->patch("/api/users/{$user->id}", [
+    $result = $this->put("/api/users/{$user->id}", [
       'email' => 'test1@me.com',
       'username' => 'test1',
       'roleId' => $role->id,
@@ -520,7 +520,7 @@ describe('PATCH /api/users/{userId}', function () {
   it('should update user with changing avatar', function () {
     $user = getTestUser();
 
-    $result = $this->patch("/api/users/{$user->id}", [
+    $result = $this->put("/api/users/{$user->id}", [
       'email' => 'test1@me.com',
       'username' => 'test1',
       'avatar' => new UploadedFile(

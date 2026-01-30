@@ -202,7 +202,7 @@ describe('POST /api/roles', function () {
   });
 });
 
-describe('PATCH /api/roles/{roleId}', function () {
+describe('PUT /api/roles/{roleId}', function () {
   beforeEach(function () {
     createTestUser();
     createAccessToken();
@@ -220,7 +220,7 @@ describe('PATCH /api/roles/{roleId}', function () {
     updateTestUser(['role_id' => $role->id]);
     createAccessToken();
 
-    $result = $this->patchJson("/api/roles/{$role->id}", [], [
+    $result = $this->putJson("/api/roles/{$role->id}", [], [
       'Authorization' => 'Bearer ' . test()->accessToken,
     ]);
 
@@ -232,7 +232,7 @@ describe('PATCH /api/roles/{roleId}', function () {
     createTestRole(['name' => 'test1']);
 
     $role = getTestRole();
-    $result = $this->patchJson("/api/roles/{$role->id}", [
+    $result = $this->putJson("/api/roles/{$role->id}", [
       'name' => 'test1',
     ], [
       'Authorization' => 'Bearer ' . test()->accessToken,
@@ -244,7 +244,7 @@ describe('PATCH /api/roles/{roleId}', function () {
   });
 
   it('should return an error if role is not found', function () {
-    $result = $this->patchJson('/api/roles/' . test()->validUUID, [], [
+    $result = $this->putJson('/api/roles/' . test()->validUUID, [], [
       'Authorization' => 'Bearer ' . test()->accessToken,
     ]);
 
@@ -255,7 +255,7 @@ describe('PATCH /api/roles/{roleId}', function () {
   it('should update role if input data is valid', function () {
     $role = getTestRole();
 
-    $result = $this->patchJson("/api/roles/{$role->id}", [
+    $result = $this->putJson("/api/roles/{$role->id}", [
       'name' => 'test1',
     ], [
       'Authorization' => 'Bearer ' . test()->accessToken,

@@ -31,13 +31,13 @@ Route::prefix('users')->middleware('auth:api')->controller(UserController::class
   Route::middleware('authorize:admin')->group(function () {
     Route::get('/search', 'search');
     Route::post('/', 'create');
-    Route::patch('/{user}', 'update')->middleware('can:update,user');
+    Route::put('/{user}', 'update')->middleware('can:update,user');
     Route::delete('/{user}', 'delete');
   });
 
   Route::middleware('authorize:user,admin')->group(function () {
     Route::get('/{user}', 'show')->middleware('can:show,user');
-    Route::patch('/{user}/profile', 'profile')->middleware('can:profile,user');
+    Route::put('/{user}/profile', 'profile')->middleware('can:profile,user');
   });
 });
 
@@ -47,7 +47,7 @@ Route::prefix('roles')->middleware('auth:api')->controller(RoleController::class
     Route::get('/', 'list');
     Route::post('/', 'create');
     Route::get('/{role}', 'show');
-    Route::patch('/{role}', 'update');
+    Route::put('/{role}', 'update');
     Route::delete('/{role}', 'delete');
   });
 });
@@ -61,7 +61,7 @@ Route::prefix('categories')->middleware('auth:api')->controller(CategoryControll
     Route::get('/search', 'search');
     Route::post('/', 'create');
     Route::get('/{category}', 'show');
-    Route::patch('/{category}', 'update');
+    Route::put('/{category}', 'update');
     Route::delete('/{category}', 'delete');
   });
 });
@@ -70,7 +70,7 @@ Route::prefix('complaints')->middleware('auth:api')->group(function () {
   Route::controller(ComplaintController::class)->group(function () {
     Route::middleware('authorize:user')->group(function () {
       Route::post('/', 'create');
-      Route::patch('/{complaint}', 'update')->middleware('can:update,complaint');
+      Route::put('/{complaint}', 'update')->middleware('can:update,complaint');
     });
 
     Route::middleware('authorize:user,admin')->group(function () {
@@ -95,7 +95,7 @@ Route::prefix('complaints')->middleware('auth:api')->group(function () {
 
 Route::prefix('responses')->controller(ResponseController::class)->group(function () {
   Route::middleware('authorize:admin')->group(function () {
-      Route::patch('/{response}', 'update');
+      Route::put('/{response}', 'update');
       Route::delete('/{response}', 'delete');
     });
 

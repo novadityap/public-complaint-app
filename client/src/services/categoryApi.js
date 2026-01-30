@@ -53,7 +53,7 @@ const categoryApi = createApi({
     updateCategory: builder.mutation({
       query: ({ categoryId, data }) => ({
         url: `/categories/${categoryId}`,
-        method: 'PATCH',
+        method: 'PUT',
         data
       }),
       invalidatesTags: (result, error, { categoryId }) => [

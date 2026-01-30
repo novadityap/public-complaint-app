@@ -119,7 +119,7 @@ describe('POST /api/complaints/{complaint}/responses', function () {
   });
 });
 
-describe('PATCH /api/responses/{response}', function () {
+describe('PUT /api/responses/{response}', function () {
   beforeEach(function () {
     createTestUser();
     createTestCategory();
@@ -137,7 +137,7 @@ describe('PATCH /api/responses/{response}', function () {
 
   it('should return an error if response is not found', function () {
     $complaint = getTestComplaint();
-    $result = $this->patchJson("/api/responses/" . test()->validUUID, [], [
+    $result = $this->putJson("/api/responses/" . test()->validUUID, [], [
       'Authorization' => 'Bearer ' . test()->accessToken,
     ]);
 
@@ -147,7 +147,7 @@ describe('PATCH /api/responses/{response}', function () {
 
   it('should update response if input data is valid', function () {
     $response = getTestResponse();
-    $result = $this->patchJson("/api/responses/{$response->id}", [
+    $result = $this->putJson("/api/responses/{$response->id}", [
       'message' => 'test1',
       'status' => 'pending'
     ], [

@@ -100,7 +100,7 @@ const ComplaintForm = ({ id, onSuccess, onClose, isUpdate }) => {
     file: {
       fieldName: 'images',
       isMultiple: true,
-      ...(isUpdate ? { method: 'PATCH' } : {}),
+      ...(isUpdate ? { method: 'PUT' } : {}),
     },
     ...(isUpdate && {
       params: [{ name: 'complaintId', value: id }],
