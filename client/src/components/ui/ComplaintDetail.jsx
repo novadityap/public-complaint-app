@@ -54,9 +54,13 @@ const ComplaintDetailSkeleton = () => (
 
 const ComplaintDetail = ({ id }) => {
   const { data: complaint, isLoading: isComplaintLoading } =
-    useShowComplaintQuery(id);
+    useShowComplaintQuery(id, {
+      skip: !id,
+    });
   const { data: responses, isLoading: isResponsesLoading } =
-    useListResponsesQuery(id);
+    useListResponsesQuery(id, {
+      skip: !id,
+    });
   const { currentUser } = useSelector(state => state.auth);
 
   if (isComplaintLoading || isResponsesLoading)

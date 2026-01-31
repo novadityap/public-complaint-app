@@ -93,15 +93,15 @@ Route::prefix('complaints')->middleware('auth:api')->group(function () {
   });
 });
 
-Route::prefix('responses')->controller(ResponseController::class)->group(function () {
+Route::prefix('responses')->middleware('auth:api')->controller(ResponseController::class)->group(function () {
   Route::middleware('authorize:admin')->group(function () {
-      Route::put('/{response}', 'update');
-      Route::delete('/{response}', 'delete');
-    });
+    Route::put('/{response}', 'update');
+    Route::delete('/{response}', 'delete');
+  });
 
-    Route::middleware('authorize:user,admin')->group(function () {
-      Route::get('/{response}', 'show')->middleware('can:showResponse,response');
-    });
+  Route::middleware('authorize:user,admin')->group(function () {
+    Route::get('/{response}', 'show')->middleware('can:showResponse,response');
+  });
 });
 
 

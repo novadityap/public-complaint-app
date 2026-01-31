@@ -62,6 +62,7 @@ const Profile = () => {
       form.reset({
         username: user.data.username,
         email: user.data.email,
+        password: ''
       });
     }
   }, [user]);

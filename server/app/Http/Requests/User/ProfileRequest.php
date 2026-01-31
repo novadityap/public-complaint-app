@@ -35,8 +35,8 @@ class ProfileRequest extends FormRequest
   {
     return [
       'avatar' => 'sometimes|image|mimes:jpeg,png,jpg|max:2048',
-      'username' => 'sometimes|required|string|min:3|max:50|unique:users,username',
-      'email' => 'sometimes|required|email|unique:users,email',
+      'username' => 'sometimes|required|string|min:3|max:50|unique:users,username,'.$this->route('user')->id,
+      'email' => 'sometimes|required|email|unique:users,email,'.$this->route('user')->id,
       'password' => 'sometimes|required|string|min:6',
     ];
   }

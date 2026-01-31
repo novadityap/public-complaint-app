@@ -120,7 +120,7 @@ const complaintApi = createApi({
       }),
       invalidatesTags: (result, error, { responseId }) => [
         { type: 'Response', id: responseId },
-        { type: 'Complaint', id: result.data.complaintId }
+        { type: 'Complaint', id: result?.data?.complaintId }
       ],
     }),
     removeResponse: builder.mutation({
